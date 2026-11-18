@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>국민일름보</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="국민일름보">
+<meta name="theme-color" content="#C9DBFF">
+<link rel="manifest" href="manifest.webmanifest">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #C9DBFF; }
+  /* 휴대폰의 Figma는 가로 맞춤만 한다 → 프레임 비율(402×874) 상자를 화면 안에 맞춰 놓는다 */
+  .box { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%);
+    width: min(100vw, calc(100dvh * 402 / 874)); height: min(100dvh, calc(100vw * 874 / 402)); }
+  iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+  /* 데스크톱의 Figma는 둘레에 60px 여백을 넣는다 → 상자 밖으로 밀어낸다 */
+  @media (hover: hover) and (pointer: fine) {
+    iframe { inset: -60px; width: calc(100% + 120px); height: calc(100% + 120px); }
+  }
+</style>
+</head>
+<body>
+<div class="box"><iframe src="https://embed.figma.com/proto/4IXiDcBuXjOHzDdsWAgAol/%EA%B5%AD%EB%AF%BC%EC%9D%BC%EB%A6%84%EB%B3%B4-%EB%A1%9C%EA%B3%A0%ED%83%90%EA%B5%AC?node-id=258-9527&page-id=259%3A2&starting-point-node-id=258%3A9527&scaling=contain&content-scaling=fixed&hide-ui=1&embed-host=share" allowfullscreen></iframe></div>
+</body>
+</html>
