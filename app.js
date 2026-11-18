@@ -740,12 +740,9 @@ $('#loginGo').onclick = () => {
   toast('로그인했어요'); go('verify');
 };
 let snsName = '카카오';
-document.addEventListener('click', e => { const b = e.target.closest('[data-sns]'); if (!b) return; snsName = b.dataset.sns;
-  const c = { 카카오: ['#FEE500', '#191600', 'K'], 네이버: ['#03C75A', '#FFFFFF', 'N'], 애플: ['#000000', '#FFFFFF', ''], 구글: ['#FFFFFF', '#4285F4', 'G'] }[snsName];
-  $('#csnT').textContent = snsName + ' 로그인'; $('#csnL').textContent = snsName + (snsName === '네이버' ? ' 아이디' : ' 계정');
-  Object.assign($('#csnI').style, { background: c[0], color: c[1], border: snsName === '구글' ? '1px solid #E4EAF7' : '0' }); $('#csnI').textContent = c[2];
-  $('#csnGo').className = 'btn sns-go' + (snsName === '네이버' ? ' naver' : ''); if (snsName === '애플' || snsName === '구글') Object.assign($('#csnGo').style, { background: 'var(--primary)', color: 'var(--on-brand)' }); else $('#csnGo').style.cssText = '';
-  go('consent'); });
+// 간편 로그인은 실제로 연동되지 않으니, 소셜 버튼과 게스트 버튼 모두 게스트로 바로 홈에 들어간다
+document.addEventListener('click', e => { const b = e.target.closest('[data-sns], [data-guest]'); if (!b) return;
+  markSeen(); tab('home'); setTimeout(() => toast(b.dataset.sns ? `${b.dataset.sns} 대신 게스트로 둘러보는 중이에요` : '게스트로 둘러보는 중이에요'), 400); });
 $('#agrees').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
   if (b.dataset.req) return toast('닉네임은 꼭 필요한 정보예요'); b.classList.toggle('on'); b.querySelector('use').setAttribute('href', b.classList.contains('on') ? '#i-box-on' : '#i-box-off'); });
 $('#csnGo').onclick = () => { toast(`${snsName} 계정으로 로그인했어요`); replace('verify'); };

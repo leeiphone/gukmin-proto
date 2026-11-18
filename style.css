@@ -781,3 +781,5 @@ html.hc { filter: contrast(1.18) saturate(1.1); }
 [hidden] { display: none !important; }
 #app.boot .screen { transition: none !important; }
 .lnote { font-size: 12px; }
+.btn.guest { margin-top: 10px; background: rgba(250,253,255,.9); color: var(--primary); }
+.btn.guest:active { background: var(--bg-accent-soft); }
