@@ -41,6 +41,7 @@ document.addEventListener('click', e => {
   else if ('home' in b.dataset) home();
   else if ('close' in b.dataset) closeLayers();
   else if (b.dataset.done) { toast(b.dataset.done); back(); }
+  else if (b.dataset.layer) openLayer($('#' + b.dataset.layer));
   else if (b.dataset.toast) toast(b.dataset.toast);
   else if ('sheet' in b.dataset) openSheet();
   else if (b.dataset.say) { pending = b.dataset.say; go('voice'); }
@@ -291,7 +292,7 @@ const notis = [
   { bd: ['추가 자료', '#FFF1DC', '#B26A00'], t: '사진을 한 장 더 보내주세요', m: '불법 주정차 신고 · 2시간 전', unread: true, to: () => { cur = mine.find(x => x.id === 'parking'); if (!cur) return; resetForm($('#extra')); fillTarget($('#extra')); go('extra'); } },
   { bd: ['처리 완료', '#E5EAFF', '#0046FF'], t: '포트홀 보수가 완료됐어요', m: '처리 결과를 확인해주세요 · 9월 8일', to: () => openDetail('pothole') },
   { bd: ['포인트', '#F5F8FF', '#526491'], t: '동네 포인트 5,000P가 적립됐어요', m: '불법 주정차 신고 · 9월 8일', to: () => toast('포상 저금통은 다음 업데이트에서 열려요') },
-  { bd: ['동네 소식', '#F5F8FF', '#526491'], t: '공릉2동 상수도 공사 안내', m: '9월 15일부터 단수 · 9월 9일', to: () => toast('동네 공지는 다음 업데이트에서 열려요') },
+  { bd: ['동네 소식', '#F5F8FF', '#526491'], t: '공릉2동 상수도 공사 안내', m: '9월 15일부터 단수 · 9월 9일', to: () => go('notice') },
 ];
 function renderNotis() {
   $('#notis').innerHTML = notis.map((n, i) => `<button class="ncard card-press ${n.unread ? 'new' : ''}" data-n="${i}">${n.unread ? '<i class="u"></i>' : ''}<div>
@@ -427,7 +428,7 @@ $('#mhome').onclick = () => { mz = 1; mx = 0; my = 0; placeMap(true); toast('내
 $('#research').onclick = () => { $('#research').classList.remove('on'); toast('이 지역 이슈를 다시 찾았어요'); };
 $('#psSame').onclick = () => { if (sameDone.has(pinSel)) { sameDone.delete(pinSel); $('#psSame').textContent = '같은 문제 알리기'; return; }
   sameDone.add(pinSel); $('#psSame').textContent = '함께 알렸어요'; toast('같은 문제로 함께 알렸어요'); };
-$('#psMore').onclick = () => { const p = PINS[pinSel]; if (p.detail) openDetail(p.detail); else toast('해결 소식 상세는 다음 업데이트에서 열려요'); };
+$('#psMore').onclick = () => { const p = PINS[pinSel]; if (p.detail) openDetail(p.detail); else openNews(p.news || 0); };
 // 끌어서 지도 이동 (04 이동 중 상태 표시)
 (() => {
   const w = $('#mapwrap'); let st = null, moved = false;
@@ -447,7 +448,7 @@ const SVCS = [
   ['민원', 4, [['민원 신청', 'i-doc', () => go('text')], ['사진으로 신고', 'i-photo', () => go('camera')], ['음성으로 신고', 'i-mic', () => go('voice')], ['최근 활동', 'i-history', () => go('recent')]]],
   ['내 민원', 3, [['내 민원 Live', 'i-time', () => tab('live')], ['처리 결과 평가', 'i-feedback', () => { cur = mine.find(m => m.id === 'pothole') || mine[0]; resetForm($('#rate')); go('rate'); }],
     ['추가 자료 보내기', 'i-attach', () => { cur = mine.find(m => m.st !== '완료') || mine[0]; resetForm($('#extra')); fillTarget($('#extra')); go('extra'); }]]],
-  ['동네', 3, [['우리동네 해결 소식', 'i-map', () => toast('우리동네 소식은 다음 업데이트에서 열려요')], ['동네 공지', 'i-notice', () => toast('동네 공지는 다음 업데이트에서 열려요')], ['이슈 지도', 'i-location', () => go('mapfull')]]],
+  ['동네', 3, [['우리동네 해결 소식', 'i-map', () => tab('news')], ['동네 공지', 'i-notice', () => go('notice')], ['이슈 지도', 'i-location', () => go('mapfull')]]],
   ['혜택', 3, [['포상 저금통', 'i-card', () => toast('포상 저금통은 다음 업데이트에서 열려요')], ['지역상생페이 전환', 'i-cart', () => toast('포인트 전환은 다음 업데이트에서 열려요')], ['기부하기', 'i-heart', () => toast('기부하기는 다음 업데이트에서 열려요')]]],
 ];
 $('#svcs').innerHTML = SVCS.map(([g, n, items], gi) => `<div class="sgroup"><span>${g}</span><div class="sgrid" style="grid-template-columns:repeat(${n},1fr)">${items.map((it, i) => `<button data-sv="${gi}.${i}"><svg width="24" height="24"><use href="#${it[1]}"/></svg>${it[0]}</button>`).join('')}</div></div>`).join('');
@@ -466,3 +467,86 @@ $('#recents').addEventListener('click', e => { const b = e.target.closest('.rcar
 
 const _enter2 = onEnter;
 onEnter = id => { _enter2(id); if (id === 'mapfull') { selectPin(-1); mx = my = 0; mz = 1; placeMap(); drawMap(); } };
+
+/* ───────── 우리동네 소식 ───────── */
+const NEWS = [
+  { cat: '환경·쓰레기', grp: '생활안전', t: '골목 무단투기 쓰레기 수거 완료', m: '노원구 청소행정과 · 9월 8일 완료', ph: 'img/news-trash.jpg', before: 'img/trash-before.jpg', place: '공릉2동 화랑로 51길 일대', org: '노원구 청소행정과', dur: '접수 후 3일', end: '2026년 9월 8일', help: 24, re: '우리 골목에 쓰레기가 다시 쌓였어요.' },
+  { cat: '시설물', grp: '교통·시설', t: '공릉2동 가로등 3개 교체 완료', m: '노원구 도로관리과 · 9월 6일 완료', ph: 'img/news-lamp.jpg', place: '공릉2동 화랑로 51길 인근', org: '노원구 도로관리과', dur: '접수 후 4일', end: '2026년 9월 6일', help: 17, re: '가로등이 다시 깜빡여요.' },
+  { cat: '교통·시설', grp: '교통·시설', t: '화랑로 보도블록 파손 보수 완료', m: '노원구 건설관리과 · 9월 3일 완료', place: '공릉동 화랑로 보행로', org: '노원구 건설관리과', dur: '접수 후 6일', end: '2026년 9월 3일', help: 9, re: '화랑로 보도블록이 다시 깨졌어요.' },
+];
+let newsF = '전체', region = '공릉2동', helped = new Set(), sortSel = { 정렬: '최신순', 상태: '전체', 분야: '전체', 기간: '최근 1개월' };
+function renderNews() {
+  $('#regionT').textContent = region;
+  const empty = region !== '공릉2동';
+  $('#nsumT').textContent = empty ? '이번 주 해결 소식이 없어요' : '이번 주 12건이 해결됐어요';
+  $('#nsumP').textContent = empty ? `${region}에서 처리 완료된 민원이 아직 없어요.` : `${region} 이웃들이 알린 문제가 처리됐어요.`;
+  $('#nchips').innerHTML = ['전체', '해결 완료', '생활안전', '교통·시설', '동네 공지'].map(c => `<button class="${c === newsF ? 'on' : ''}" data-nf="${c}">${c}</button>`).join('');
+  let items = empty ? [] : NEWS.map((n, i) => ({ ...n, i }));
+  if (newsF === '동네 공지') items = [];
+  else if (newsF !== '전체' && newsF !== '해결 완료') items = items.filter(n => n.grp === newsF);
+  if (sortSel.분야 !== '전체') items = items.filter(n => sortSel.분야 === '환경·쓰레기' ? n.cat === '환경·쓰레기' : n.cat !== '환경·쓰레기');
+  if (sortSel.상태 === '처리 중') items = [];
+  if (sortSel.정렬 === '오래된순') items.reverse();
+  let html = items.map(n => `<button class="ncardx card-press" data-ni="${n.i}"><span class="ph" ${n.ph ? `style="background-image:url(${n.ph})"` : ''}>${n.ph ? '' : '<svg width="30" height="30"><use href="#i-photo"/></svg>'}</span>
+    <span class="bd"><span class="pbadges"><span style="background:#F5F8FF;color:#526491">${n.cat}</span><span style="background:#E5EAFF;color:#0046FF">해결 완료</span></span><b>${n.t}</b><small>${n.m}</small></span></button>`).join('');
+  if (!empty && (newsF === '전체' || newsF === '동네 공지')) html += `<button class="ncardx card-press" data-notice="1"><span class="ph"><svg width="30" height="30"><use href="#i-notice"/></svg></span><span class="bd"><span class="pbadges"><span style="background:#F5F8FF;color:#526491">동네 공지</span><span style="background:#E5EAFF;color:#0046FF">노원구청</span></span><b>화랑로 51길 상수도 정비 공사 안내</b><small>9월 15일부터 단수 · 9월 9일 게시</small></span></button>`;
+  $('#ncards').innerHTML = html || `<div class="nempty"><svg width="48" height="48" style="color:#A7B5F9"><use href="#i-notice"/></svg><b>아직 해결 소식이 없어요</b><p>이웃이 알린 문제가 처리되면<br>여기에서 결과를 볼 수 있어요.</p><button class="btn brand" data-go="voice">첫 민원 알리기</button></div>`;
+  $('.fbtn').classList.toggle('dot', JSON.stringify(sortSel) !== JSON.stringify(SORT_DEF));
+}
+const SORT_DEF = { ...sortSel };
+$('#nchips').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { newsF = b.dataset.nf; renderNews(); } });
+$('#ncards').addEventListener('click', e => { const b = e.target.closest('.ncardx'); if (!b) return; if (b.dataset.notice) go('notice'); else openNews(+b.dataset.ni); });
+let newsCur = 0;
+function openNews(i) {
+  newsCur = i; const n = NEWS[i];
+  const photos = n.before && n.ph ? `<div class="nphotos"><div style="background-image:url(${n.before})"><span>처리 전</span></div><div style="background-image:url(${n.ph})"><span>처리 후</span></div></div><p class="ninfo"><svg width="16" height="16"><use href="#i-info"/></svg>신고자가 공개에 동의한 사진이에요. 얼굴과 차량번호는 가려집니다.</p>`
+    : n.ph ? `<div class="nphotos"><div style="background-image:url(${n.ph})"><span>처리 후</span></div></div><p class="ninfo"><svg width="16" height="16"><use href="#i-info"/></svg>처리 전 사진은 신고자가 공개하지 않았어요. 처리 후 사진은 담당 기관이 제공했어요.</p>`
+    : `<p class="ninfo box"><svg width="18" height="18"><use href="#i-info"/></svg>이 민원은 사진이 공개되지 않았어요. 처리 과정은 아래에서 확인할 수 있어요.</p>`;
+  const on = helped.has(i);
+  $('#ndBody').innerHTML = `
+    <div class="pbadges"><span style="background:#F5F8FF;color:#526491">${n.cat}</span><span style="background:#E5EAFF;color:#0046FF">해결 완료</span></div>
+    <b class="nd-title">${n.t}</b>${photos}
+    <div class="ncard2"><div class="kv"><span>위치</span><b>${n.place}</b></div><div class="kv"><span>처리 기관</span><b>${n.org}</b></div><div class="kv"><span>소요 기간</span><b>${n.dur}</b></div><div class="kv"><span>완료일</span><b>${n.end}</b></div></div>
+    <div class="ncard2 nproc" style="gap:10px"><div class="h"><span>처리 과정</span><em>4 / 4</em></div><div class="bars"><i></i><i></i><i></i><i></i></div><div class="lb"><span>접수됨</span><span>검토 중</span><span>처리 중</span><span>완료</span></div></div>
+    <button class="helpful ${on ? 'on' : ''}" id="helpful"><svg width="18" height="18"><use href="#i-thumb"/></svg>도움이 됐어요&nbsp;&nbsp;<span>${n.help + (on ? 1 : 0)}</span></button>
+    <button class="btn brand" id="reReport" style="flex:none">이 문제가 다시 발생했어요</button>
+    <p class="cta-note">위치와 민원 유형이 자동으로 채워져요.</p>
+    <div class="similar"><b>주변의 비슷한 신고</b>
+      <button class="simcard card-press" data-sim="ing"><div><span class="bd2" style="background:#FFF1DC;color:#B26A00">처리 중</span><p>화랑로 51길 쓰레기 재발 신고</p><small>공릉2동 · 9월 10일</small></div><svg width="18" height="18"><use href="#i-chev"/></svg></button>
+      <button class="simcard card-press" data-sim="${(i + 1) % NEWS.length}"><div><span class="bd2" style="background:#E5EAFF;color:#0046FF">해결 완료</span><p>${NEWS[(i + 1) % NEWS.length].t}</p><small>공릉2동 · ${NEWS[(i + 1) % NEWS.length].end.replace('2026년 ', '')}</small></div><svg width="18" height="18"><use href="#i-chev"/></svg></button></div>`;
+  $('#spv').querySelector('b').textContent = n.t;
+  if (stack[stack.length - 1] === 'newsDetail') { $('#newsDetail .scroll').scrollTop = 0; } else go('newsDetail');
+}
+$('#ndBody').addEventListener('click', e => {
+  if (e.target.closest('#helpful')) { helped.has(newsCur) ? helped.delete(newsCur) : (helped.add(newsCur), toast('이웃에게 고마움을 전했어요')); openNews(newsCur); return; }
+  if (e.target.closest('#reReport')) return toConfirm(NEWS[newsCur].re);
+  const s = e.target.closest('[data-sim]'); if (!s) return;
+  if (s.dataset.sim === 'ing') toast('처리 중인 이웃 신고예요. 해결되면 알려드릴게요'); else openNews(+s.dataset.sim);
+});
+// 공지 알림 신청 (08 → 08b)
+let noticeOn = false;
+$('#noticeSub').onclick = () => { noticeOn = !noticeOn; const b = $('#noticeSub');
+  b.className = noticeOn ? 'btn neutral' : 'btn brand'; b.style.flex = '1'; b.textContent = noticeOn ? '알림 신청됨 · 취소' : '공사 시작 전 알림 받기';
+  toast(noticeOn ? '공사 시작 전날 알림을 보내드릴게요' : '알림 신청을 취소했어요'); };
+// 06 지역 변경
+const REGIONS = ['공릉2동', '공릉1동', '하계동', '중계본동', '상계1동', '월계동', '태릉동'];
+function drawRegions() { const q = $('#rq').value.trim(); $('#rlist').innerHTML = REGIONS.filter(r => !q || r.includes(q)).slice(0, q ? 7 : 4).map(r => `<button class="${r === region ? 'on' : ''}" data-region="${r}">${r}${r === region ? '<svg width="20" height="20"><use href="#i-done"/></svg>' : ''}</button>`).join(''); }
+$('#rq').addEventListener('input', drawRegions);
+document.addEventListener('click', e => { const b = e.target.closest('[data-region]'); if (!b) return; region = b.dataset.region; closeLayers(); renderNews(); toast(`${region} 소식을 보여드릴게요`); });
+// 07 정렬과 필터
+const SORT_OPT = { 정렬: ['최신순', '오래된순'], 상태: ['전체', '해결 완료', '처리 중'], 분야: ['전체', '환경·쓰레기', '교통·시설'], 기간: ['최근 1주', '최근 1개월', '전체'] };
+let sortDraft = { ...sortSel };
+function drawSort() { $('#sortGroups').innerHTML = Object.entries(SORT_OPT).map(([g, os]) => `<div class="sgrp"><span>${g}</span><div>${os.map(o => `<button class="${sortDraft[g] === o ? 'on' : ''}" data-sg="${g}" data-so="${o}">${o}</button>`).join('')}</div></div>`).join(''); }
+$('#sortGroups').addEventListener('click', e => { const b = e.target.closest('[data-sg]'); if (b) { sortDraft[b.dataset.sg] = b.dataset.so; drawSort(); } });
+$('#sortReset').onclick = () => { sortDraft = { ...SORT_DEF }; drawSort(); };
+$('#sortApply').onclick = () => { sortSel = { ...sortDraft }; closeLayers(); renderNews(); toast('필터를 적용했어요'); };
+// 10 공유
+document.addEventListener('click', async e => { const b = e.target.closest('[data-share]'); if (!b) return; const url = location.href.split('#')[0];
+  if (b.dataset.share === 'copy') { try { await navigator.clipboard.writeText(url); toast('링크를 복사했어요'); } catch { toast('링크를 복사하지 못했어요'); } }
+  else if (navigator.share) { try { await navigator.share({ title: $('#spv b').textContent, url }); } catch {} }
+  else toast('이 기기에서는 공유 창을 열 수 없어요');
+  closeLayers(); });
+const _openLayer = openLayer;
+openLayer = el => { if (el.id === 'regionSheet') { $('#rq').value = ''; drawRegions(); } if (el.id === 'sortSheet') { sortDraft = { ...sortSel }; drawSort(); } _openLayer(el); };
+const _enter3 = onEnter;
+onEnter = id => { _enter3(id); if (id === 'news') renderNews(); };
