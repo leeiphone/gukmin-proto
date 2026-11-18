@@ -28,7 +28,7 @@ svg { display: block; }
 .nav { height: 54px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 21px; }
 .tap44 { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; }
 .tap44:active { background: rgba(0,70,255,.08); }
-.btn { height: 52px; border-radius: 18px; font-size: 15px; font-weight: 600; line-height: 22px; display: flex; align-items: center; justify-content: center; padding: 0 20px; transition: background .14s, transform .14s; }
+.btn { white-space: nowrap; height: 52px; border-radius: 18px; font-size: 15px; font-weight: 600; line-height: 22px; display: flex; align-items: center; justify-content: center; padding: 0 20px; transition: background .14s, transform .14s; }
 .btn:active { transform: scale(.98); }
 .btn.neutral { background: var(--bg-accent-soft); color: var(--text); width: 112px; flex: none; }
 .btn.neutral:active { background: var(--secondary-pressed); }
@@ -455,3 +455,58 @@ svg { display: block; }
 .pcard .pt button { height: 32px; padding: 0 12px; border-radius: 999px; background: var(--bg-accent-soft); font-size: 12px; font-weight: 600; }
 .pcard textarea { display: block; width: 100%; border: 0; outline: 0; resize: none; background: none; padding: 8px 14px 14px; font: 400 14px/20px "Gothic A1", sans-serif; color: var(--text); }
 .pcard textarea[readonly] { font-size: 12px; line-height: 18px; }
+
+/* ── 지도 전체보기 ── */
+#mapfull { background: #DDE6FA; }
+.mapwrap { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
+.mapcanvas { position: absolute; left: -100px; top: calc((var(--h) - 1074px) / 2); width: 602px; height: 1074px; padding: 100px; background: url(img/full-map.jpg) center / cover; transform-origin: 301px 537px; }
+.mapcanvas.anim { transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+.mpin { position: absolute; width: 38px; height: 38px; margin: -19px 0 0 -19px; border-radius: 50%; border: 3px solid var(--bg-card); display: grid; place-items: center; color: var(--bg-card); box-shadow: 0 2px 6px rgba(0,24,61,.25); transition: transform .2s, opacity .2s; }
+.mpin.hide { opacity: 0; transform: scale(.4); pointer-events: none; }
+.mpin.sel { transform: scale(1.37); z-index: 2; }
+.mpin.sel::before { content: ""; position: absolute; inset: -14px; border-radius: 50%; background: currentColor; opacity: .0; }
+.mpin.sel { box-shadow: 0 0 0 10px rgba(245,158,11,.22), 0 2px 6px rgba(0,24,61,.25); }
+.mtop { position: absolute; left: 0; right: 0; top: 0; padding-bottom: 4px; pointer-events: none; }
+.mtop > * { pointer-events: auto; }
+.mrow { display: flex; gap: 8px; padding: 8px 21px 0; }
+.mbtn { width: 44px; height: 44px; border-radius: 14px; background: var(--bg-card); display: grid; place-items: center; box-shadow: 0 2px 8px rgba(0,24,61,.08); }
+.mbtn:active { transform: scale(.94); }
+.msearch { width: 276px; height: 44px; border-radius: 14px; background: var(--bg-card); display: flex; align-items: center; gap: 8px; padding: 0 14px; box-shadow: 0 2px 8px rgba(0,24,61,.08); }
+.msearch input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: 500 16px/21px "Gothic A1", sans-serif; color: var(--text); }
+.mfilters { display: flex; gap: 8px; padding: 14px 21px 0; }
+.mfilters button { height: 34px; padding: 0 12px; border-radius: 999px; background: var(--bg-card); display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-2); box-shadow: 0 2px 8px rgba(0,24,61,.06); }
+.mfilters button i { width: 8px; height: 8px; border-radius: 4px; }
+.mfilters button.on { background: var(--primary); color: var(--on-brand); }
+.research { position: absolute; left: 50%; top: calc(177px + env(safe-area-inset-top) / var(--z)); transform: translateX(-50%) translateY(-8px); height: 44px; padding: 0 18px; border-radius: 999px; background: var(--primary); color: var(--on-brand); font-size: 14px; font-weight: 600; box-shadow: 0 6px 16px rgba(0,70,255,.3); opacity: 0; pointer-events: none; transition: .2s; }
+.research.on { opacity: 1; transform: translateX(-50%); pointer-events: auto; }
+.mzoom { position: absolute; right: 26px; bottom: calc(150px + env(safe-area-inset-bottom) / var(--z)); display: flex; flex-direction: column; gap: 10px; }
+.mzoom .mbtn { width: 48px; height: 48px; }
+.moving { position: absolute; left: 21px; bottom: calc(60px + env(safe-area-inset-bottom) / var(--z)); height: 32px; padding: 0 14px; border-radius: 999px; background: var(--text); color: var(--on-brand); display: flex; align-items: center; font-size: 12px; font-weight: 600; opacity: 0; transition: .2s; }
+.moving.on { opacity: 1; }
+.mstrip { position: absolute; left: 26px; right: 26px; bottom: calc(32px + env(safe-area-inset-bottom) / var(--z)); height: 60px; border-radius: 16px; background: var(--bg-card); display: flex; align-items: center; justify-content: space-between; padding: 0 18px; font-size: 14px; font-weight: 500; box-shadow: 0 4px 16px rgba(0,24,61,.1); transition: .2s; }
+.mstrip button { font-size: 12px; color: var(--primary); }
+.mstrip.off, .moving.on ~ .mstrip { opacity: 0; pointer-events: none; }
+.pinsheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--bg-card); border-radius: 28px 28px 0 0; padding: 12px 26px calc(28px + env(safe-area-inset-bottom) / var(--z)); box-shadow: 0 -8px 30px rgba(0,24,61,.12); transform: translateY(110%); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+.pinsheet.on { transform: none; }
+.pinsheet .handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border-strong); margin: 0 auto 14px; }
+.pbadges { display: flex; gap: 6px; }
+.pbadges span { padding: 3px 8px; border-radius: 6px; font-size: 12px; line-height: 16px; font-weight: 600; }
+.pinsheet > b { display: block; margin-top: 8px; font-size: 22px; line-height: 30px; }
+.pinsheet > p { margin-top: 8px; font-size: 12px; line-height: 18px; color: var(--text-muted); }
+.pinsheet .actions { margin-top: 14px; }
+.mtoast-up .toast { bottom: calc(230px + env(safe-area-inset-bottom) / var(--z)); }
+
+/* ── 전체 서비스 ── */
+.svcs { padding: 14px 26px 24px; display: flex; flex-direction: column; gap: 14px; }
+.sgroup > span { display: block; font-size: 12px; line-height: 18px; color: var(--text-muted); margin-bottom: 10px; }
+.sgrid { display: grid; gap: 10px; }
+.sgrid button { height: 92px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-card); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-size: 12px; line-height: 16px; font-weight: 600; transition: transform .12s; }
+.sgrid button:active { transform: scale(.95); background: var(--bg-accent-soft); }
+
+/* ── 최근 활동 ── */
+.recents { padding: 18px 26px 24px; display: flex; flex-direction: column; gap: 12px; }
+.recents > span { font-size: 13px; line-height: 19px; font-weight: 500; color: var(--text-muted); }
+.rcard { border-radius: 12px; background: #FFFFFF; border: 1px solid var(--border-card); padding: 15px 17px; display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.rcard em { font-style: normal; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--primary); }
+.rcard b { font-size: 14px; line-height: 21px; font-weight: 500; }
+.rcard small { font-size: 12px; line-height: 18px; color: var(--text-muted); }
