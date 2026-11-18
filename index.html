@@ -86,7 +86,7 @@
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 18L5 12L11 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
-<div id="app">
+<div id="app" class="boot">
   <!-- 01 홈 -->
   <section class="screen active safe-top" id="home">
     <div class="scroll"><div class="home-body">
@@ -355,7 +355,7 @@
       <p class="nd-meta">노원구 상하수도과 · 2026년 9월 9일 게시</p>
       <div class="ncard2"><div class="kv"><span>기간</span><b>9월 15일(월) ~ 9월 19일(금)</b></div><div class="kv"><span>시간</span><b>09:00 ~ 18:00</b></div><div class="kv"><span>장소</span><b>공릉2동 화랑로 51길 일대</b></div><div class="kv"><span>영향</span><b>단수 및 차량 통행 제한</b></div></div>
       <div class="ncard2 body"><p>노후 상수도관 교체를 위해 아래 기간 동안 정비 공사를 진행합니다. 공사 구간에서는 단수가 발생하며, 차량 통행이 일부 제한됩니다.</p><p>단수 시간은 세대별로 다를 수 있으며, 시작 전날 알림으로 다시 안내드립니다. 생활용수는 미리 받아 두시기 바랍니다.</p></div>
-      <div class="actions"><button class="btn neutral" data-toast="고객센터 문의는 다음 업데이트에서 열려요">문의하기</button><button class="btn brand" id="noticeSub">공사 시작 전 알림 받기</button></div>
+      <div class="actions"><button class="btn neutral" data-go="cs">문의하기</button><button class="btn brand" id="noticeSub">공사 시작 전 알림 받기</button></div>
     </div></div>
   </section>
 
@@ -542,6 +542,90 @@
       <div class="ncard2"><b>4. 보관 기간</b><p>민원 처리 완료 후 3년간 보관하며 이후 지체 없이 파기합니다.</p></div>
       <div class="ncard2"><b>5. 제3자 제공</b><p>담당 행정기관 외에는 제공하지 않습니다.</p></div>
     </div></div>
+  </section>
+
+  <!-- 진입·인증 -->
+  <section class="screen" id="splash"><div class="splash"><svg width="100" height="116" viewBox="0 0 100 116" class="logo"><path fill="currentColor" d="M92.7903 50.4565C83.1076 21.3316 66.9485 0 55.2351 0C54.2713 0 53.3382 0.14432 52.4412 0.441286C48.1236 1.86506 45.2433 6.61374 43.8366 13.5994C43.5998 14.5125 43.363 15.4228 43.129 16.3359C42.2042 19.1862 40.583 23.3743 37.8949 28.1563C33.3294 36.2771 24.6412 47.8476 9.184 56.8704C5.34827 59.1102 2.44291 62.6377 0.999981 66.8063C-0.448519 70.9999 -0.320382 75.5682 1.36489 79.6702L5.89145 90.6968C7.89707 95.5815 11.8637 99.2644 16.6744 100.993C18.1536 101.524 19.5241 102.317 20.6801 103.38L33.2904 114.97C34.0118 115.634 34.9562 116 35.9339 116C35.9868 116 36.0425 116 36.0955 115.997L60.3968 114.995C61.9957 114.929 63.4247 113.891 63.9456 112.312C64.2548 111.371 64.1601 110.344 63.7562 109.442L61.6893 104.793C61.252 103.811 62.1573 102.767 63.1991 103.05C67.4973 104.216 71.5976 106.056 75.3247 108.892C75.3247 108.892 75.3247 108.892 75.3275 108.892C79.634 112.828 83.843 115.02 87.598 115.02C88.5618 115.02 89.4949 114.876 90.3919 114.579C102.197 110.682 103.272 81.9738 92.7931 50.4537L92.7903 50.4565ZM58.7255 93.6498C57.355 93.4528 55.9845 93.3001 54.614 93.1863C51.5053 92.9255 49.2657 96.106 50.5359 98.9453L51.6975 101.543H51.7114L53.0429 104.538C53.6697 105.945 52.6752 107.538 51.132 107.602L40.1318 108.054C38.3741 108.126 36.6609 107.499 35.3712 106.311L30.5744 101.904C30.5912 101.904 30.6079 101.904 30.6246 101.904L23.8946 95.6703C22.7135 94.5768 21.3068 93.7553 19.7748 93.2529C17.031 92.3537 14.7552 90.2999 13.6242 87.5468L9.09765 76.5201C7.18675 71.8686 9.00016 66.6259 13.4042 64.0559C25.2986 57.1119 33.5856 48.7746 39.2487 41.2755C40.7864 39.2356 44.0232 40.0072 44.455 42.5217C45.65 49.499 47.508 56.9537 50.04 64.5693C53.1933 74.0556 57.0346 82.712 61.1851 90.0751C62.1684 91.8208 60.7144 93.9412 58.7255 93.6554V93.6498ZM91.3418 91.8292C91.1858 97.8573 90.247 101.482 89.4866 103.461C89.4253 103.622 89.364 103.772 89.3027 103.916C87.8542 106.752 84.9182 105.376 84.7288 105.281C82.4586 103.91 79.0936 101.068 74.9821 95.5732C74.5754 95.0292 74.1687 94.4686 73.7648 93.8996C72.294 91.8153 72.333 89.0177 73.8567 86.9695C80.2413 78.3852 82.5756 67.5668 79.1967 57.4005C75.9292 47.5757 68.0182 40.4401 58.2269 37.1818C54.419 35.9135 51.7365 32.4914 51.5526 28.4949C51.469 26.6687 51.4495 24.898 51.4913 23.1939C51.6473 17.1658 52.6975 13.58 53.3465 11.5623C53.3465 11.5595 53.3465 11.5539 53.3493 11.5512C53.4162 11.3513 54.4357 8.42607 57.8341 9.58063C60.1015 10.8851 63.5724 13.7298 67.851 19.4499C74.2718 28.0342 80.219 40.0044 84.5923 53.1625C89.2247 67.1005 91.6231 80.8331 91.339 91.8292H91.3418Z"/></svg><b>국민일름보</b></div></section>
+  <section class="screen safe-top" id="login">
+    <div class="scroll"><div class="login">
+      <svg width="100" height="116" viewBox="0 0 100 116" class="logo"><path fill="currentColor" d="M92.7903 50.4565C83.1076 21.3316 66.9485 0 55.2351 0C54.2713 0 53.3382 0.14432 52.4412 0.441286C48.1236 1.86506 45.2433 6.61374 43.8366 13.5994C43.5998 14.5125 43.363 15.4228 43.129 16.3359C42.2042 19.1862 40.583 23.3743 37.8949 28.1563C33.3294 36.2771 24.6412 47.8476 9.184 56.8704C5.34827 59.1102 2.44291 62.6377 0.999981 66.8063C-0.448519 70.9999 -0.320382 75.5682 1.36489 79.6702L5.89145 90.6968C7.89707 95.5815 11.8637 99.2644 16.6744 100.993C18.1536 101.524 19.5241 102.317 20.6801 103.38L33.2904 114.97C34.0118 115.634 34.9562 116 35.9339 116C35.9868 116 36.0425 116 36.0955 115.997L60.3968 114.995C61.9957 114.929 63.4247 113.891 63.9456 112.312C64.2548 111.371 64.1601 110.344 63.7562 109.442L61.6893 104.793C61.252 103.811 62.1573 102.767 63.1991 103.05C67.4973 104.216 71.5976 106.056 75.3247 108.892C75.3247 108.892 75.3247 108.892 75.3275 108.892C79.634 112.828 83.843 115.02 87.598 115.02C88.5618 115.02 89.4949 114.876 90.3919 114.579C102.197 110.682 103.272 81.9738 92.7931 50.4537L92.7903 50.4565ZM58.7255 93.6498C57.355 93.4528 55.9845 93.3001 54.614 93.1863C51.5053 92.9255 49.2657 96.106 50.5359 98.9453L51.6975 101.543H51.7114L53.0429 104.538C53.6697 105.945 52.6752 107.538 51.132 107.602L40.1318 108.054C38.3741 108.126 36.6609 107.499 35.3712 106.311L30.5744 101.904C30.5912 101.904 30.6079 101.904 30.6246 101.904L23.8946 95.6703C22.7135 94.5768 21.3068 93.7553 19.7748 93.2529C17.031 92.3537 14.7552 90.2999 13.6242 87.5468L9.09765 76.5201C7.18675 71.8686 9.00016 66.6259 13.4042 64.0559C25.2986 57.1119 33.5856 48.7746 39.2487 41.2755C40.7864 39.2356 44.0232 40.0072 44.455 42.5217C45.65 49.499 47.508 56.9537 50.04 64.5693C53.1933 74.0556 57.0346 82.712 61.1851 90.0751C62.1684 91.8208 60.7144 93.9412 58.7255 93.6554V93.6498ZM91.3418 91.8292C91.1858 97.8573 90.247 101.482 89.4866 103.461C89.4253 103.622 89.364 103.772 89.3027 103.916C87.8542 106.752 84.9182 105.376 84.7288 105.281C82.4586 103.91 79.0936 101.068 74.9821 95.5732C74.5754 95.0292 74.1687 94.4686 73.7648 93.8996C72.294 91.8153 72.333 89.0177 73.8567 86.9695C80.2413 78.3852 82.5756 67.5668 79.1967 57.4005C75.9292 47.5757 68.0182 40.4401 58.2269 37.1818C54.419 35.9135 51.7365 32.4914 51.5526 28.4949C51.469 26.6687 51.4495 24.898 51.4913 23.1939C51.6473 17.1658 52.6975 13.58 53.3465 11.5623C53.3465 11.5595 53.3465 11.5539 53.3493 11.5512C53.4162 11.3513 54.4357 8.42607 57.8341 9.58063C60.1015 10.8851 63.5724 13.7298 67.851 19.4499C74.2718 28.0342 80.219 40.0044 84.5923 53.1625C89.2247 67.1005 91.6231 80.8331 91.339 91.8292H91.3418Z"/></svg>
+      <p class="ltitle">로그인 후 이용이<br>가능합니다.</p>
+      <label class="lfield"><span>아이디</span><input id="lid" autocomplete="username" placeholder="chanhee@email.com"></label>
+      <label class="lfield"><span>비밀번호</span><input id="lpw" type="password" autocomplete="current-password"></label>
+      <p class="lerr" id="lerr"></p>
+      <button class="btn brand" id="loginGo" style="flex:none">로그인</button>
+      <div class="llinks" id="llinks" hidden><button data-toast="아이디 찾기는 본인인증 후 할 수 있어요">아이디 찾기</button><button data-toast="가입한 이메일로 재설정 링크를 보냈어요">비밀번호 재설정</button></div>
+      <div class="sns"><button data-sns="카카오"><img src="img/sns-kakao.png" alt="">카카오</button><button data-sns="네이버"><img src="img/sns-naver.png" alt="">네이버</button><button data-sns="애플"><img src="img/sns-apple.png" alt="">애플</button><button data-sns="구글"><img src="img/sns-google.png" alt="">구글</button></div>
+      <p class="lnote">회원가입 없이 소셜 계정을 통해 바로 이용 가능하며<br>첫 로그인시 이용약관 및 개인정보처리방침 동의로 간주됩니다.</p>
+    </div></div>
+  </section>
+  <section class="screen safe-top" id="consent" style="background:#FAFDFF">
+    <div class="nav cnav"><span style="width:44px"></span><b id="csnT">카카오 로그인</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <div class="acc ncard2" style="flex-direction:row"><i id="csnI" style="width:40px;height:40px;background:#FEE500;color:#191600">K</i><span><small id="csnL">카카오 계정</small>chan****@email.com</span></div>
+      <p class="h-title">국민일름보가<br>아래 정보를 요청해요</p>
+      <div class="agrees" id="agrees">
+        <button class="on" data-req="1"><svg width="22" height="22"><use href="#i-box-on"/></svg><span><b>닉네임 <em class="req">필수</em></b><small>민원 화면에서 부를 이름으로 써요</small></span></button>
+        <button class="on"><svg width="22" height="22"><use href="#i-box-on"/></svg><span><b>이메일 <em>선택</em></b><small>처리 결과를 메일로도 받고 싶을 때만</small></span></button>
+        <button><svg width="22" height="22"><use href="#i-box-off"/></svg><span><b>프로필 사진 <em>선택</em></b><small>내 화면에 표시돼요. 없으면 기본 이미지</small></span></button>
+      </div>
+      <p class="pnote" style="text-align:left;margin:0">선택 항목에 동의하지 않아도 서비스를 이용할 수 있어요.</p>
+    </div></div>
+    <div class="bottom-action" style="flex-direction:column;align-items:stretch;background:#FAFDFF"><button class="btn sns-go" id="csnGo">동의하고 계속하기</button><button class="textbtn" id="csnNo" style="text-decoration:none;padding:8px">취소</button></div>
+  </section>
+  <section class="screen safe-top" id="verify" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>본인인증</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <p class="h-title">본인 명의 휴대폰으로<br>인증해주세요</p>
+      <p class="pinfo" style="background:var(--bg-accent-soft)"><svg width="18" height="18"><use href="#i-info"/></svg>민원을 접수하려면 신원 확인이 필요해요. 둘러보기만 한다면 건너뛸 수 있어요.</p>
+      <label class="field"><span>이름</span><input id="vName" value="이찬희" autocomplete="name"></label>
+      <label class="field"><span>통신사</span><select id="vTel"><option>SKT</option><option>KT</option><option>LG U+</option><option>알뜰폰</option></select></label>
+      <label class="field"><span>휴대폰 번호</span><input id="vPhone" inputmode="numeric" value="010-1234-5678" autocomplete="tel"></label>
+      <button class="btn brand" id="vSend" style="flex:none">인증번호 받기</button>
+      <button class="textbtn" data-go="nbhd" style="text-decoration:none">나중에 하기</button>
+    </div></div>
+  </section>
+  <section class="screen safe-top" id="otp" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>본인인증</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <p class="h-title">인증번호를 입력해주세요</p>
+      <p class="h-sub" id="otpSub" style="margin-top:-8px"></p>
+      <label class="otp"><input id="otpIn" inputmode="numeric" autocomplete="one-time-code" maxlength="6"><span id="otpBox"></span></label>
+      <div class="otpm"><span id="otpT">남은 시간 3:00</span><button id="otpRe">다시 보내기</button></div>
+      <button class="btn brand" id="otpGo" style="flex:none">인증 완료</button>
+    </div></div>
+  </section>
+  <section class="screen safe-top" id="nbhd" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>동네 설정</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <p class="h-title">어느 동네 소식을<br>받아볼까요?</p>
+      <p class="h-sub" style="margin-top:-6px">민원과 해결 소식이 이 동네를 기준으로 보여요. 나중에 바꿀 수 있어요.</p>
+      <button class="rgps" id="nbGps"><svg width="20" height="20"><use href="#i-gps"/></svg>현재 위치로 찾기</button>
+      <label class="rsearch" style="background:var(--bg-card);border:1px solid var(--border-card)"><svg width="18" height="18"><use href="#i-search"/></svg><input id="nbq" placeholder="동 이름으로 찾기" autocomplete="off"></label>
+      <span class="st-l" style="margin:0">검색 결과</span>
+      <div class="bills" id="nbList"></div>
+    </div></div>
+    <div class="bottom-action"><button class="btn brand" id="nbGo"></button></div>
+  </section>
+  <section class="screen safe-top" id="perm" style="background:#F5F8FF">
+    <div class="scroll"><div class="pts" style="padding-top:40px">
+      <p class="h-title">시작하기 전에<br>이것만 확인해주세요</p>
+      <p class="h-sub" style="margin-top:-6px">권한은 아래 용도로만 쓰고, 언제든 설정에서 끌 수 있어요.</p>
+      <div class="perm"><span class="wi"><svg width="22" height="22"><use href="#i-location"/></svg></span><div><b>위치 <em class="req">필수</em></b><small>신고 위치를 자동으로 찾고, 우리 동네 소식을 보여줘요.</small></div></div>
+      <div class="perm"><span class="wi"><svg width="22" height="22"><use href="#i-bell"/></svg></span><div><b>알림 <em>선택</em></b><small>민원 처리 상태가 바뀌면 알려드려요. 꺼도 접수는 됩니다.</small></div></div>
+      <div class="perm"><span class="wi"><svg width="22" height="22"><use href="#i-camera"/></svg></span><div><b>카메라 <em>선택</em></b><small>사진으로 신고할 때만 써요. 앨범 선택만 해도 됩니다.</small></div></div>
+    </div></div>
+    <div class="bottom-action"><button class="btn brand" id="permGo">확인했어요</button></div>
+  </section>
+  <section class="screen safe-top" id="onb">
+    <div class="onbtop"><span></span><button class="textbtn" id="onbSkip" style="text-decoration:none">건너뛰기</button></div>
+    <div class="slides" id="slides">
+      <div><img src="img/onb1.png" alt=""><b>말하면<br>찾아드려요</b><p>어느 부서인지 몰라도 괜찮아요. 상황만 말하면 민원 유형과 담당 기관을 찾아드려요.</p></div>
+      <div><img src="img/onb2.png" alt=""><b>찍으면<br>접수돼요</b><p>사진 한 장이면 위치와 내용이 자동으로 정리돼요. 글을 길게 쓰지 않아도 됩니다.</p></div>
+      <div><img src="img/onb3.png" alt=""><b>기다리는 동안<br>보여드려요</b><p>접수됨부터 완료까지 어디쯤 왔는지 보여드리고, 바뀔 때마다 알려드려요.</p></div>
+    </div>
+    <div class="dots" id="dots"><i class="on"></i><i></i><i></i></div>
+    <div class="bottom-action" style="background:none"><button class="btn brand" id="onbGo">다음</button></div>
   </section>
 
   <!-- 내 민원 · Live 리포트 -->

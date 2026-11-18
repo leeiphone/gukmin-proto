@@ -726,3 +726,66 @@ onEnter = id => { _enter5(id);
   if (id === 'settings') { renderSettings(); if (setScroll) { const g = document.querySelector(`.setg[data-g="${setScroll}"]`); setTimeout(() => g && g.scrollIntoView({ behavior: 'smooth', block: 'start' }), 350); setScroll = null; } else $('#settings .scroll').scrollTop = 0; }
   if (id === 'account') renderLinked();
   if (id === 'faq') { $('#fq').value = ''; faqF = '전체'; renderFaq(); } };
+
+/* ───────── 진입·인증 ───────── */
+const seen = (() => { try { return sessionStorage.getItem('gukmin-seen') === '1'; } catch { return false; } })();
+function markSeen() { try { sessionStorage.setItem('gukmin-seen', '1'); } catch {} }
+function goLogin() { $('#lerr').textContent = ''; $('#llinks').hidden = true; tab('login'); }
+// 처음 열면 스플래시 → 로그인, 한 번 본 뒤에는 바로 홈
+if (!seen) { $('#home').classList.remove('active'); $('#splash').classList.add('active'); stack[0] = 'splash'; setTimeout(() => tab('login'), 1600); }
+let loginFail = 0;
+$('#loginGo').onclick = () => {
+  const id = $('#lid').value.trim(), pw = $('#lpw').value;
+  if (!id || pw.length < 4) { loginFail = Math.min(5, loginFail + 1); $('#lerr').textContent = `아이디 또는 비밀번호가 맞지 않아요. 5회 틀리면 잠시 잠겨요. (${loginFail}/5)`; $('#llinks').hidden = false; return; }
+  toast('로그인했어요'); go('verify');
+};
+let snsName = '카카오';
+document.addEventListener('click', e => { const b = e.target.closest('[data-sns]'); if (!b) return; snsName = b.dataset.sns;
+  const c = { 카카오: ['#FEE500', '#191600', 'K'], 네이버: ['#03C75A', '#FFFFFF', 'N'], 애플: ['#000000', '#FFFFFF', ''], 구글: ['#FFFFFF', '#4285F4', 'G'] }[snsName];
+  $('#csnT').textContent = snsName + ' 로그인'; $('#csnL').textContent = snsName + (snsName === '네이버' ? ' 아이디' : ' 계정');
+  Object.assign($('#csnI').style, { background: c[0], color: c[1], border: snsName === '구글' ? '1px solid #E4EAF7' : '0' }); $('#csnI').textContent = c[2];
+  $('#csnGo').className = 'btn sns-go' + (snsName === '네이버' ? ' naver' : ''); if (snsName === '애플' || snsName === '구글') Object.assign($('#csnGo').style, { background: 'var(--primary)', color: 'var(--on-brand)' }); else $('#csnGo').style.cssText = '';
+  go('consent'); });
+$('#agrees').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.req) return toast('닉네임은 꼭 필요한 정보예요'); b.classList.toggle('on'); b.querySelector('use').setAttribute('href', b.classList.contains('on') ? '#i-box-on' : '#i-box-off'); });
+$('#csnGo').onclick = () => { toast(`${snsName} 계정으로 로그인했어요`); replace('verify'); };
+$('#csnNo').onclick = () => { back(); $('#lerr').textContent = `${snsName} 로그인을 취소했어요. 다른 방법으로도 시작할 수 있어요.`; };
+// 본인인증 → 인증번호
+let otpTimer = null, otpLeft = 180;
+$('#vSend').onclick = () => {
+  const ph = $('#vPhone').value.replace(/[^0-9]/g, '');
+  if (ph.length < 10) return toast('휴대폰 번호를 확인해주세요');
+  $('#otpSub').textContent = `${$('#vPhone').value}로 6자리 숫자를 보냈어요.`; $('#otpIn').value = ''; drawOtp(); go('otp');
+  otpLeft = 180; clearInterval(otpTimer); otpTimer = setInterval(() => { otpLeft = Math.max(0, otpLeft - 1); $('#otpT').textContent = `남은 시간 ${Math.floor(otpLeft / 60)}:${String(otpLeft % 60).padStart(2, '0')}`; }, 1000);
+  setTimeout(() => toast('시연용 인증번호: 482915'), 900);
+};
+function drawOtp() { const v = $('#otpIn').value.replace(/\D/g, '').slice(0, 6); $('#otpIn').value = v;
+  $('#otpBox').innerHTML = [...Array(6)].map((_, i) => `<i class="${i === v.length ? 'cur' : ''}">${v[i] || ''}</i>`).join('');
+  $('#otpGo').style.opacity = v.length === 6 ? 1 : .4; }
+$('#otpIn').addEventListener('input', drawOtp);
+$('#otpRe').onclick = () => { otpLeft = 180; $('#otpIn').value = ''; drawOtp(); toast('인증번호를 다시 보냈어요'); };
+$('#otpGo').onclick = () => { if ($('#otpIn').value.length < 6) return toast('6자리를 모두 입력해주세요'); clearInterval(otpTimer); toast('본인인증을 완료했어요'); go('nbhd'); };
+// 동네 설정
+const NB = ['공릉2동', '공릉1동', '하계동', '중계본동', '상계1동', '월계동', '태릉동'];
+let nbSel = '공릉2동';
+function drawNb() { const q = $('#nbq').value.trim(); $('#nbList').innerHTML = NB.filter(n => !q || n.includes(q)).slice(0, q ? 7 : 4).map(n => `<button class="${n === nbSel ? 'on' : ''}" data-nb="${n}"><span><b>${n}</b><small>서울 노원구</small></span><svg width="22" height="22"><use href="#${n === nbSel ? 'i-radio-on' : 'i-radio-off'}"/></svg></button>`).join('') || '<p class="empty">찾는 동네가 없어요</p>';
+  $('#nbGo').textContent = `${nbSel}${/[가-힣]/.test(nbSel) && (nbSel.charCodeAt(nbSel.length - 1) - 0xAC00) % 28 ? '으로' : '로'} 시작하기`; }
+$('#nbq').addEventListener('input', drawNb);
+$('#nbList').addEventListener('click', e => { const b = e.target.closest('[data-nb]'); if (b) { nbSel = b.dataset.nb; drawNb(); } });
+$('#nbGps').onclick = () => { const done = () => { nbSel = '공릉2동'; $('#nbq').value = ''; drawNb(); toast('현재 위치는 공릉2동이에요'); };
+  if (navigator.geolocation) navigator.geolocation.getCurrentPosition(done, done, { timeout: 4000 }); else done(); };
+$('#nbGo').onclick = () => { region = nbSel; go('perm'); };
+$('#permGo').onclick = () => { if (navigator.geolocation) navigator.geolocation.getCurrentPosition(() => {}, () => {}, { timeout: 3000 }); go('onb'); };
+// 온보딩
+const sl = $('#slides');
+const onbIdx = () => Math.round(sl.scrollLeft / sl.clientWidth);
+sl.addEventListener('scroll', () => { const i = onbIdx(); [...$('#dots').children].forEach((d, k) => d.classList.toggle('on', k === i)); $('#onbGo').textContent = i === 2 ? '시작하기' : '다음'; });
+function finishOnb() { markSeen(); tab('home'); setTimeout(() => toast(`${region}에서 시작해요`), 400); }
+$('#onbGo').onclick = () => { const i = onbIdx(); if (i >= 2) return finishOnb(); sl.scrollTo({ left: (i + 1) * sl.clientWidth, behavior: 'smooth' }); };
+$('#onbSkip').onclick = finishOnb;
+const _enter6 = onEnter;
+onEnter = id => { _enter6(id);
+  if (id === 'nbhd') { $('#nbq').value = ''; drawNb(); }
+  if (id === 'onb') sl.scrollLeft = 0;
+  if (id === 'login') { $('#lpw').value = ''; } };
+requestAnimationFrame(() => requestAnimationFrame(() => app.classList.remove('boot'))); // 첫 화면은 미끄러지지 않게
