@@ -5,9 +5,10 @@ app.addEventListener('scroll', () => { app.scrollLeft = 0; app.scrollTop = 0; })
 // 화면 맞춤: 폰은 가로를 꽉 채우고, 넓은 화면은 높이에 맞춘 세로 기둥으로
 function fit() {
   const vv = window.visualViewport || { width: innerWidth, height: innerHeight };
-  const z = innerWidth < 600 ? innerWidth / 402 : Math.min(1, innerHeight / 874);
+  const z = (innerWidth < 600 ? innerWidth / 402 : Math.min(1, innerHeight / 874)) * (window.bigScale || 1); // 큰 글씨 모드면 더 확대
   document.documentElement.style.setProperty('--z', z);
   document.documentElement.style.setProperty('--h', (vv.height / z) + 'px');
+  document.documentElement.style.setProperty('--w', (innerWidth < 600 ? innerWidth / z : 402) + 'px');
   window.scrollTo(0, 0);
 }
 fit(); addEventListener('resize', fit); window.visualViewport && visualViewport.addEventListener('resize', fit);
@@ -650,3 +651,78 @@ onEnter = id => { _enter4(id);
   if (id === 'cpay' || id === 'cdon') syncAmt(document.querySelector(`#${id} [data-amt]`));
   if (id === 'ctax') syncTax();
   if (id === 'phist') renderHist(); };
+
+/* ───────── 내 화면 · 설정 ───────── */
+const prefs = { '전체 알림': true, '처리 상태 알림': true, '지역 소식 알림': false, '큰 글씨 모드': false, '고대비 모드': false };
+const SET = [
+  ['계정', [['i-acct', '프로필 관리', 'profile'], ['i-signin', '로그인 계정 관리', 'account']]],
+  ['알림', [['i-bell', '전체 알림', 0], ['i-update', '처리 상태 알림', 0], ['i-notice', '지역 소식 알림', 0]]],
+  ['화면 · 접근성', [['i-zoomin', '큰 글씨 모드', 0], ['i-eye', '고대비 모드', 0]]],
+  ['보안', [['i-lock', '비밀번호 변경', 'pw'], ['i-security', '개인정보 처리방침', 'privacy']]],
+  ['기타', [['i-info', '버전 정보', '1.0.0'], [null, '로그아웃', 'logout']]],
+];
+function renderSettings() {
+  $('#setBody').innerHTML = SET.map(([g, rows]) => `<div class="setg" data-g="${g}"><span>${g}</span><div class="menu">${rows.map(([ic, t, a]) => {
+    if (a === 'logout') return `<button class="out" data-layer="logoutDlg">로그아웃</button>`;
+    const right = a === 0 ? `<span class="toggle ${prefs[t] ? '' : 'off'}"></span>` : a === '1.0.0' ? `<em>1.0.0</em>` : `<svg width="16" height="16"><use href="#i-chev"/></svg>`;
+    return `<button data-set="${t}" ${typeof a === 'string' && a !== '1.0.0' ? `data-go="${a}"` : ''}><span class="mi"><svg width="16" height="16"><use href="#${ic}"/></svg></span>${t}${right}</button>`; }).join('')}</div></div>`).join('');
+}
+function applyPrefs() {
+  document.documentElement.classList.toggle('hc', prefs['고대비 모드']);
+  window.bigScale = prefs['큰 글씨 모드'] ? 1.08 : 1; fit();
+}
+$('#setBody').addEventListener('click', e => { const b = e.target.closest('[data-set]'); if (!b || !(b.dataset.set in prefs)) return;
+  const t = b.dataset.set; prefs[t] = !prefs[t]; b.querySelector('.toggle').classList.toggle('off', !prefs[t]);
+  if (t === '큰 글씨 모드' || t === '고대비 모드') applyPrefs();
+  toast(`${t}${prefs[t] ? '을 켰어요' : '을 껐어요'}`.replace('모드을', '모드를').replace('알림을', '알림을')); });
+let setScroll = null;
+document.addEventListener('click', e => { const b = e.target.closest('[data-sec]'); if (b) setScroll = b.dataset.sec; }, true);
+function renderMe() { $('#meIng').textContent = `진행중 ${mine.filter(m => m.st !== '완료').length}건`; $('#mePts').textContent = won(pts) + 'P'; }
+$('#logoutGo').onclick = () => { closeLayers(); toast('로그아웃했어요'); setTimeout(() => (typeof goLogin === 'function' ? goLogin() : tab('home')), 300); };
+// 계정 연결
+const LINK = [['카카오', '#FEE500', '#191600', 'K', 'chan***@kakao.com'], ['네이버', '#03C75A', '#FFFFFF', 'N', null], ['애플', '#000000', '#FFFFFF', '', null]];
+function renderLinked() { $('#linked').innerHTML = LINK.map((l, i) => `<button class="acc" data-ln="${i}"><i style="background:${l[1]};color:${l[2]}">${l[3]}</i><span>${l[0]}<small>${l[4] ? '연결됨 · ' + l[4] : '연결 안 됨'}</small></span><em>${l[4] ? '해제' : '연결'}</em></button>`).join(''); }
+$('#linked').addEventListener('click', e => { const b = e.target.closest('[data-ln]'); if (!b) return; const l = LINK[b.dataset.ln];
+  if (l[4]) { if (LINK.filter(x => x[4]).length < 2) return toast('연결된 계정이 하나뿐일 때는 해제할 수 없어요'); l[4] = null; toast(`${l[0]} 연결을 해제했어요`); }
+  else { l[4] = l[0] === '네이버' ? 'chan***@naver.com' : 'chan***@icloud.com'; toast(`${l[0]} 계정을 연결했어요`); } renderLinked(); });
+// 비밀번호 변경 (입력 검증)
+const pwOk = v => v.length >= 8 && /\d/.test(v) && /[a-zA-Z가-힣]/.test(v);
+function checkPw() { const a = $('#pw1').value, b = $('#pw2').value;
+  $('#pw1m').textContent = !a ? '' : pwOk(a) ? '사용할 수 있는 비밀번호예요' : '8자 이상, 숫자와 문자를 함께 써주세요'; $('#pw1m').className = !a ? '' : pwOk(a) ? 'good' : 'bad';
+  $('#pw2m').textContent = !b ? '' : a === b ? '비밀번호가 같아요' : '비밀번호가 서로 달라요'; $('#pw2m').className = !b ? '' : a === b ? 'good' : 'bad'; }
+['#pw1', '#pw2'].forEach(s => $(s).addEventListener('input', checkPw));
+$('#pwGo').onclick = () => { if (!$('#pw0').value) return toast('현재 비밀번호를 입력해주세요'); if (!pwOk($('#pw1').value) || $('#pw1').value !== $('#pw2').value) return toast('새 비밀번호를 다시 확인해주세요');
+  ['#pw0', '#pw1', '#pw2'].forEach(s => $(s).value = ''); checkPw(); toast('비밀번호를 바꿨어요'); back(); };
+// 프로필
+document.addEventListener('change', e => { if (e.target.id === 'nick') { toast('닉네임을 바꿨어요'); document.querySelector('.pn b').textContent = e.target.value || '찬희님'; } });
+const _pickChange = $('#picker').onchange;
+$('#picker').onchange = e => { if (pickFor === 'avatar') { const f = e.target.files[0]; if (f) { const u = `url(${URL.createObjectURL(f)})`; document.querySelectorAll('.av').forEach(a => a.style.backgroundImage = u); toast('프로필 사진을 바꿨어요'); } e.target.value = ''; return; } _pickChange(e); };
+// FAQ
+const FAQ = [
+  ['접수', '접수한 민원을 취소할 수 있나요?', '담당 기관이 배정되기 전(접수됨·검토 중)에는 내 민원 › 민원 상세에서 바로 취소할 수 있어요. 처리 중인 민원은 문의하기로 요청해주세요.'],
+  ['처리', '처리가 얼마나 걸리나요?', '유형에 따라 다르지만 보통 접수 후 3~5일 안에 처리돼요. 단계가 바뀔 때마다 알림으로 알려드려요.'],
+  ['처리', '담당 기관이 바뀌면 다시 신고해야 하나요?', '아니요. 기관이 바뀌어도 접수 내용은 그대로 넘어가요. 다시 신고하지 않아도 돼요.'],
+  ['포인트', '동네 포인트는 어떻게 적립되나요?', '불법 주정차·무단투기처럼 과태료가 부과되는 신고가 확정되면 적립돼요. 기준은 동네 포인트 화면에서 볼 수 있어요.'],
+  ['포인트', '포인트를 현금으로 받을 수 있나요?', '현금 출금은 안 돼요. 지역상생페이 전환, 지방세 충당, 기부로 쓸 수 있어요.'],
+  ['접수', '사진 없이도 신고할 수 있나요?', '네. 말이나 글로 설명만 해도 접수돼요. 사진이 있으면 담당 기관이 더 빨리 확인할 수 있어요.'],
+];
+let faqF = '전체';
+function renderFaq() { const q = $('#fq').value.trim();
+  $('#fchips').innerHTML = ['전체', '접수', '처리', '포인트'].map(c => `<button class="${c === faqF ? 'on' : ''}" data-fc="${c}">${c}</button>`).join('');
+  const list = FAQ.filter(([c, t, a]) => (faqF === '전체' || c === faqF) && (!q || (t + a).includes(q)));
+  $('#faqs').innerHTML = list.map(([c, t, a]) => `<div class="faq"><button><em>${c}</em><b>${t}</b><svg width="16" height="16"><use href="#i-chev"/></svg></button><p>${a}</p></div>`).join('') || '<p class="empty">찾는 질문이 없어요. 고객센터로 문의해주세요</p>'; }
+$('#fq').addEventListener('input', renderFaq);
+$('#fchips').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { faqF = b.dataset.fc; renderFaq(); } });
+$('#faqs').addEventListener('click', e => { const f = e.target.closest('.faq'); if (f && e.target.closest('button')) f.classList.toggle('open'); });
+// 고객센터 문의 → 07c
+$('#csType').addEventListener('click', e => { const b = e.target.closest('button'); if (b) [...$('#csType').children].forEach(x => x.classList.toggle('on', x === b)); });
+$('#csGo').onclick = () => { const t = $('#cs textarea'); if (!t.value.trim()) return toast('문의 내용을 적어주세요');
+  const n = document.querySelector('[data-thumbs="cs"]').children.length, d = new Date(), p = x => String(x).padStart(2, '0');
+  $('#csInfo').innerHTML = `<div class="hd"><b>문의 정보</b><span class="tag">접수됨</span></div><div class="kv"><span>문의 유형</span><b>${$('#csType .on').textContent}</b></div><div class="kv"><span>첨부</span><b>${n ? `화면 캡처 ${n}장` : '없음'}</b></div><div class="kv"><span>접수 번호</span><b>CS-${p(d.getMonth() + 1)}${p(d.getDate())}-${Math.floor(Math.random() * 900) + 100}</b></div><div class="kv"><span>답변 예정</span><b>${d.getMonth() + 1}월 ${d.getDate() + 2}일까지</b></div>`;
+  t.value = ''; document.querySelector('[data-thumbs="cs"]').innerHTML = ''; replace('csdone'); };
+const _enter5 = onEnter;
+onEnter = id => { _enter5(id);
+  if (id === 'me') renderMe();
+  if (id === 'settings') { renderSettings(); if (setScroll) { const g = document.querySelector(`.setg[data-g="${setScroll}"]`); setTimeout(() => g && g.scrollIntoView({ behavior: 'smooth', block: 'start' }), 350); setScroll = null; } else $('#settings .scroll').scrollTop = 0; }
+  if (id === 'account') renderLinked();
+  if (id === 'faq') { $('#fq').value = ''; faqF = '전체'; renderFaq(); } };
