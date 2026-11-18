@@ -26,6 +26,8 @@ function go(id) { show(stack[stack.length - 1], id); stack.push(id); }
 function back() { if (stack.length < 2) return; const from = stack.pop(); show(from, stack[stack.length - 1], true); onLeave(from); }
 function home() { tab('home'); }
 // 하단바 이동: 기록을 비우고 그 화면을 새 출발점으로
+// 지금 화면을 다른 화면으로 바꿔치기 (뒤로 가면 그 전 화면으로)
+function replace(id) { const from = stack.pop(); stack.push(id); show(from, id); onLeave(from); }
 function tab(id) { const from = stack[stack.length - 1]; if (from === id) return; stack.length = 0; stack.push(id); show(from, id, true); onLeave(from); }
 
 let toastT;
@@ -56,18 +58,23 @@ const TYPES = [
 let state = { text: '', photo: null, type: TYPES[0] };
 const classify = t => TYPES.find(x => x.re.test(t)) || TYPES[5];
 function setType(t) { state.type = t; $('#typeName').textContent = t.name; $('#typeIc use').setAttribute('href', '#' + t.ic); }
-function toConfirm(text, photo) {
+function toConfirm(text, photo, nav = go) {
   state.text = text; state.photo = photo || null;
-  const q = $('#quote'); q.innerHTML = '';
-  if (photo) { const img = new Image(); img.src = photo; q.append(img); }
-  q.append(document.createTextNode(photo ? '사진에서 도로 파손이 보여요. 위치는 사진과 함께 기록됐어요.' : '“' + text + '”'));
-  $('#cSub').textContent = photo ? '찍어주신 사진을 바탕으로 가장 알맞은 유형을 찾았어요.' : '말씀하신 내용을 바탕으로 가장 알맞은 유형을 찾았어요.';
-  setType(photo ? TYPES[2] : classify(text));
-  go('confirm');
+  const q = $('#quote'); q.className = photo ? 'pcard' : 'quote';
+  if (photo) {
+    state.text = '골목에 쓰레기가 쌓여 지나다니기 어렵습니다.\n빠른 수거를 요청드립니다.';
+    q.innerHTML = `<div class="pimg" style="background-image:url(${photo})"></div><div class="pt"><span>AI가 작성한 내용</span><button id="editAi">직접 수정하기</button></div><textarea id="aiText" rows="2" readonly></textarea>`;
+    $('#aiText').value = state.text;
+  } else q.textContent = '“' + text + '”';
+  document.querySelector('#confirm .badge').lastChild.textContent = photo ? '사진 분석 완료' : '분석 완료';
+  document.querySelector('#confirm .h-title').textContent = photo ? '이 내용으로 접수할까요?' : '민원 유형을 확인해주세요';
+  $('#cSub').style.display = photo ? 'none' : '';
+  setType(photo ? TYPES[0] : classify(text));
+  nav('confirm');
 }
+document.addEventListener('click', e => { if (e.target.id !== 'editAi') return; const t = $('#aiText'); t.readOnly = false; t.rows = 4; t.focus(); e.target.textContent = '수정 중'; });
+document.addEventListener('input', e => { if (e.target.id === 'aiText') state.text = e.target.value; });
 
-// 유형 변경 시트
-$('#types').innerHTML = TYPES.map((t, i) => `<button data-i="${i}">${t.k}</button>`).join('');
 // 시트·다이얼로그 공통
 function openLayer(el) { $('#dim').classList.add('on'); el.classList.add('on'); }
 function closeLayers() { document.querySelectorAll('#dim, .sheet.on, .dlg.on').forEach(x => x.classList.remove('on')); }
@@ -79,18 +86,15 @@ function openSheet() {
 $('#types').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; setType(TYPES[b.dataset.i]); closeLayers(); toast('유형을 바꿨어요'); });
 
 // 접수
-$('#submit').onclick = () => {
-  $('#loading').classList.add('on');
-  setTimeout(() => {
-    const d = new Date(), p = n => String(n).padStart(2, '0');
-    const no = `N-${String(d.getFullYear()).slice(2)}${p(d.getMonth() + 1)}${p(d.getDate())}-${String(Math.floor(Math.random() * 900) + 100)}`;
-    $('#dNo').textContent = no;
-    $('#dType').textContent = state.type.name;
-    addMine(no, d);
-    $('#loading').classList.remove('on');
-    go('done');
-  }, 1300);
-};
+$('#submit').onclick = () => state.photo ? submitNow() : go('loc');
+function finishSubmit() {
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  const no = `N-${String(d.getFullYear()).slice(2)}${p(d.getMonth() + 1)}${p(d.getDate())}-${String(Math.floor(Math.random() * 900) + 100)}`;
+  $('#dNo').textContent = no;
+  $('#dType').textContent = state.type.name;
+  addMine(no, d);
+  replace('done');
+}
 
 // 음성 입력: 지원 브라우저는 실제 인식, 아니면 시연 문장을 받아쓰기처럼 보여준다
 let pending = null, rec = null, typing = null;
@@ -129,15 +133,16 @@ $('#composer').onsubmit = e => {
 $('#chat').addEventListener('click', () => $('#msg').blur());
 
 // 사진으로 바로: 폰 카메라를 바로 연다
-$('#photoCard').onclick = () => $('#camera').click();
-$('#camera').onchange = e => { const f = e.target.files[0]; if (f) toConfirm('', URL.createObjectURL(f)); e.target.value = ''; };
+$('#photoCard').onclick = () => go('camera');
 
 function onEnter(id) {
   if (id === 'live') renderLive();
+  if (id === 'camera') startCam();
+  if (id === 'typepick') renderTypes();
   if (id === 'voice') { resetVoice(); if (pending) { const t = pending; pending = null; setTimeout(() => fakeType(t), 350); } }
   if (id === 'text') setTimeout(() => $('#msg').focus(), 350);
 }
-function onLeave(id) { if (id === 'voice') resetVoice(); }
+function onLeave(id) { if (id === 'voice') resetVoice(); if (id === 'camera') stopCam(); }
 
 /* ───────── 내 민원 ───────── */
 const ST = {
@@ -296,3 +301,91 @@ $('#notis').addEventListener('click', e => { const b = e.target.closest('.ncard'
 renderNotis();
 const _enter = onEnter;
 onEnter = id => { _enter(id); if (id === 'noti') renderNotis(); };
+
+/* ───────── 민원 접수: 유형·위치·자료·제출 ───────── */
+const TSUB = ['무단투기·수거', '차량 신고', '도로 파손·신호', '가로등·공공시설', '위험·방범', '직접 설명하기'];
+const TICON = ['i-delete', 'i-location', 'i-map', 'i-home', 'i-security', 'i-more'];
+const TORDER = [0, 2, 1, 3, 4, 5]; // Figma 배치 순서: 환경, 도로, 불법주정차, 시설물, 생활안전, 기타
+let tSel = null;
+function renderTypes() {
+  tSel = state.type; $('#tq').value = '';
+  drawTypes();
+}
+function drawTypes() {
+  const q = $('#tq').value.trim();
+  $('#tgrid').innerHTML = TORDER.filter(i => !q || (TYPES[i].k + TSUB[i]).includes(q)).map(i => `<button class="tcard ${TYPES[i] === tSel ? 'sel' : ''}" data-t="${i}">
+    <span class="ti2"><svg width="24" height="24"><use href="#${TICON[i]}"/></svg><svg class="ok" width="18" height="18"><use href="#i-check"/></svg></span><b>${TYPES[i].k}</b><small>${TSUB[i]}</small></button>`).join('') || '<p class="empty" style="grid-column:1/-1;padding:20px 0">찾는 유형이 없어요. 기타 민원을 골라주세요</p>';
+  $('#tcur').textContent = '현재 선택: ' + tSel.k;
+}
+$('#tq').addEventListener('input', drawTypes);
+$('#tgrid').addEventListener('click', e => { const b = e.target.closest('.tcard'); if (b) { tSel = TYPES[b.dataset.t]; drawTypes(); } });
+$('#tpick').onclick = () => { setType(tSel); back(); toast('유형을 바꿨어요'); };
+
+// 위치: 지도를 탭하면 핀이 그 자리로 옮겨 간다
+const SPOTS = ['공릉2동 화랑로 51길 인근', '공릉2동 주민센터 앞', '화랑로 골목 분리수거장 옆', '공릉동 도깨비시장 입구', '태릉입구역 6번 출구 인근'];
+let spot = 0;
+$('#lmap').addEventListener('click', e => {
+  if (e.target.closest('#mylo')) { Object.assign($('#lpin').style, { left: '50%', top: '113px' }); spot = 0; }
+  else { const r = $('#lmap').getBoundingClientRect(), z = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--z')) || 1;
+    const x = (e.clientX - r.left) / z, y = (e.clientY - r.top) / z;
+    Object.assign($('#lpin').style, { left: Math.min(Math.max(x, 110), 240) + 'px', top: Math.min(Math.max(y, 30), 240) + 'px' }); spot = 1 + (spot % 4); }
+  $('#lpinT').textContent = SPOTS[spot]; $('#addrSub').textContent = SPOTS[spot].replace(/^공릉2?동 /, '');
+});
+$('#consent').onclick = () => { const c = $('#consent'); c.classList.toggle('on'); c.querySelector('use').setAttribute('href', c.classList.contains('on') ? '#i-box-on' : '#i-box-off'); };
+document.addEventListener('click', e => { if (e.target.closest('[data-send]')) submitNow(); });
+
+// 06 제출 중 / 11 사진 분석 중: 단계가 차례로 켜진다
+function runBusy(cfg, done) {
+  $('#bTitle').textContent = cfg.title; $('#bSub').textContent = cfg.sub; $('#bNote').textContent = cfg.note;
+  const bin = $('#bin'); bin.style.backgroundImage = cfg.photo ? `url(${cfg.photo})` : ''; bin.innerHTML = cfg.photo ? '' : '<svg width="28" height="28"><use href="#i-send"/></svg>';
+  $('#bsteps').innerHTML = cfg.steps.map(t => `<div><i></i><span>${t}</span><em>예정</em></div>`).join('');
+  const rows = [...$('#bsteps').children]; let i = 0;
+  const tick = () => {
+    rows.forEach((r, k) => { r.className = k < i ? 'ok' : k === i ? 'on' : ''; r.querySelector('em').textContent = k < i ? '완료' : k === i ? '진행 중' : '예정'; });
+    if (i++ < rows.length) setTimeout(tick, 700); else setTimeout(done, 300);
+  };
+  tick();
+}
+function submitNow() {
+  if (!navigator.onLine) return go('fail');
+  go('busy');
+  runBusy({ title: '민원을 접수하고 있어요', sub: '내용을 확인하고 담당 기관을 찾는 중입니다.', note: '완료되면 자동으로 다음 화면으로 이동해요.', steps: ['내용 확인', '담당 기관 찾기', '접수번호 생성'] }, finishSubmit);
+}
+$('#retry').onclick = () => { back(); submitNow(); };
+
+// 09 카메라: 폰 후면 카메라를 실제로 띄운다
+let camStream = null, torch = false;
+async function startCam() {
+  $('#camOff').textContent = '카메라를 켜는 중이에요…';
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    $('#video').srcObject = camStream; $('#camOff').textContent = '';
+  } catch (err) { $('#camOff').textContent = '카메라를 쓸 수 없어요. 셔터를 누르면 사진을 고를 수 있어요.'; camStream = null; }
+}
+function stopCam() { camStream && camStream.getTracks().forEach(t => t.stop()); camStream = null; torch = false; $('#flashBtn').classList.remove('on'); }
+function toReview(src) {
+  const d = new Date(), p = n => String(n).padStart(2, '0'), h = d.getHours();
+  $('#rvGeo').textContent = `서울 노원구 공릉2동 · ${d.getFullYear()}.${p(d.getMonth() + 1)}.${p(d.getDate())} ${h < 12 ? '오전' : '오후'} ${h % 12 || 12}:${p(d.getMinutes())}`;
+  $('#rvPhoto').style.backgroundImage = `url(${src})`; state.shot = src; go('review');
+}
+$('#shutter').onclick = () => {
+  const v = $('#video');
+  if (!camStream || !v.videoWidth) return camPick.click();
+  const c = $('#snap'); c.width = v.videoWidth; c.height = v.videoHeight; c.getContext('2d').drawImage(v, 0, 0);
+  const fx = $('#flashfx'); fx.classList.remove('on'); void fx.offsetWidth; fx.classList.add('on');
+  setTimeout(() => toReview(c.toDataURL('image/jpeg', .85)), 250);
+};
+const camPick = document.createElement('input'); camPick.type = 'file'; camPick.accept = 'image/*'; camPick.id = 'camPick'; camPick.hidden = true; document.body.append(camPick);
+camPick.onchange = e => { const f = e.target.files[0]; if (f) toReview(URL.createObjectURL(f)); e.target.value = ''; };
+$('#album').onclick = () => camPick.click();
+$('#flashBtn').onclick = async () => {
+  const t = camStream && camStream.getVideoTracks()[0];
+  if (t && t.getCapabilities && t.getCapabilities().torch) { torch = !torch; await t.applyConstraints({ advanced: [{ torch }] }); $('#flashBtn').classList.toggle('on', torch); }
+  else toast('이 기기에서는 플래시를 켤 수 없어요');
+};
+document.addEventListener('click', e => { const b = e.target.closest('[data-swap]'); if (b) replace(b.dataset.swap); });
+$('#usePhoto').onclick = () => {
+  go('busy');
+  runBusy({ title: '사진을 분석하고 있어요', sub: '사진 속 상황과 위치를 확인하는 중입니다.', note: '분석이 끝나면 내용을 확인하고 고칠 수 있어요.', photo: state.shot, steps: ['사진 확인', '민원 유형 찾기', '신고 내용 작성'] },
+    () => toConfirm('', state.shot, replace)); // 뒤로 가면 사진 확인 화면
+};
