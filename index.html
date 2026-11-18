@@ -12,168 +12,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-/* 00_Design Foundation 토큰 */
-:root {
-  --bg-app:#F9FBFF; --bg-card:#FAFDFF; --bg-subtle:#F5F8FF; --bg-accent:#E5EAFF; --bg-accent-soft:#E9EFFF;
-  --primary:#0046FF; --primary-pressed:#002FB0; --secondary-pressed:#A7B5F9;
-  --text:#00183D; --text-2:#526491; --text-muted:#646B7A; --text-disabled:#A2A1B4; --text-accent:#003053; --on-brand:#FAFDFF;
-  --border-strong:#D2E0FC; --border-card:#E4EAF7; --border-subtle:#E9EEFF; --warning:#F59E0B;
-  --grad: linear-gradient(123deg, #C9E8FF 0%, #A7B5F9 54%, #81AFFD 100%);
-  --z: 1; --h: 874px;
-}
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; height: 100%; overflow: hidden; touch-action: manipulation; /* 두 번 탭 확대 방지 */ background: var(--bg-app); font-family: "Gothic A1", system-ui, sans-serif; color: var(--text); }
-button { font: inherit; color: inherit; border: 0; background: none; padding: 0; cursor: pointer; }
-p { margin: 0; }
-svg { display: block; }
-
-/* 402px 기준 디자인을 폰 폭에 맞춰 확대 — 높이는 화면 그대로 쓴다(레터박스 없음) */
-/* clip: 화면 밖 입력창에 포커스가 가도 브라우저가 #app을 스크롤해 화면이 밀리지 않게 */
-#app { position: relative; width: 402px; height: var(--h); zoom: var(--z); margin: 0 auto; overflow: hidden; overflow: clip; }
-.screen { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--bg-app);
-  transform: translateX(100%); transition: transform .32s cubic-bezier(.2,.8,.2,1); visibility: hidden; }
-.screen.active { transform: none; visibility: visible; }
-.screen.behind { transform: translateX(-24%); visibility: visible; }
-.screen.grad { background: url(img/bg.png) center bottom / 100% auto no-repeat, var(--grad); }
-.safe-top { padding-top: calc(env(safe-area-inset-top) / var(--z)); }
-.scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-
-/* 공통 */
-.nav { height: 54px; flex: none; display: flex; align-items: center; justify-content: space-between; padding: 0 21px; }
-.tap44 { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; }
-.tap44:active { background: rgba(0,70,255,.08); }
-.btn { height: 52px; border-radius: 18px; font-size: 15px; font-weight: 600; line-height: 22px; display: flex; align-items: center; justify-content: center; padding: 0 20px; transition: background .14s, transform .14s; }
-.btn:active { transform: scale(.98); }
-.btn.neutral { background: var(--bg-accent-soft); color: var(--text); width: 112px; flex: none; }
-.btn.neutral:active { background: var(--secondary-pressed); }
-.btn.brand { background: var(--primary); color: var(--on-brand); flex: 1; }
-.btn.brand:active { background: var(--primary-pressed); }
-.actions { display: flex; gap: 10px; }
-.card-press { transition: transform .14s, box-shadow .14s; }
-.card-press:active { transform: scale(.98); box-shadow: inset 0 0 0 1.5px var(--primary); }
-
-/* ── 01 홈 ── */
-.home-top { position: relative; align-self: stretch; height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; }
-.home-top h1 { position: absolute; left: 0; right: 0; text-align: center; margin: 0; font-size: 22px; line-height: 30px; font-weight: 700; color: var(--text-disabled); pointer-events: none; }
-.home-body { display: flex; flex-direction: column; align-items: center; gap: 10px; padding-bottom: calc(24px + env(safe-area-inset-bottom) / var(--z)); }
-.hero { position: relative; width: 350px; height: 450px; border-radius: 40px; overflow: hidden; flex: none;
-  background: url(img/hero.png) center / cover, linear-gradient(138deg, #C9E8FF 0%, #A7B5F9 54%, #81AFFD 100%); }
-.chip { position: absolute; background: var(--bg-subtle); padding: 10px; font-size: 16px; line-height: 24px; font-weight: 700; color: var(--text); filter: drop-shadow(0 0 3.3px #8CBDD9); white-space: nowrap; }
-.chip:active { transform: scale(.96); }
-.chip.sm { font-size: 12px; line-height: 16px; font-weight: 600; }
-.hello { position: absolute; left: 194px; right: 20px; top: 264px; text-align: center; font-size: 15px; line-height: 22px; font-weight: 600; color: #E0FFFD; }
-.ask { position: absolute; left: 30px; right: 20px; top: 288px; text-align: right; font-size: 22px; line-height: 30px; font-weight: 700; color: #F1F7FF; }
-.search { position: absolute; left: 25px; top: 373px; width: 300px; height: 45px; border-radius: 30px; background: var(--bg-card);
-  display: flex; align-items: center; justify-content: space-between; padding: 5px 5px 5px 15px; font-size: 15px; font-weight: 600; color: #8F8F8F; }
-.send-dot { width: 35px; height: 35px; border-radius: 50%; background: var(--primary); display: grid; place-items: center; color: var(--on-brand); box-shadow: 0 2px 6px rgba(0,70,255,.35); }
-.sec-head { width: 350px; height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 10px; }
-.sec-head b { font-size: 16px; line-height: 24px; }
-.sec-head .more { font-size: 15px; line-height: 22px; font-weight: 600; color: var(--text-disabled); }
-.grid { width: 350px; display: grid; grid-template-columns: 162px 162px; justify-content: space-between; row-gap: 19px; padding: 10px 0; }
-.svc { height: 159px; border-radius: 20px; background: var(--bg-accent); display: flex; flex-direction: column; align-items: center; overflow: hidden; }
-.svc .pill { align-self: stretch; margin: 10px 65px 0 10px; padding: 5px; border-radius: 15px; font-size: 12px; line-height: 16px; font-weight: 600; color: #526BAF; text-align: center; white-space: nowrap; }
-.svc img { height: 100px; margin-top: 10px; filter: drop-shadow(0 4px 4px #ADBBF3); }
-.map-head { width: 350px; display: flex; justify-content: space-between; align-items: center; }
-.map-head b { font-size: 16px; line-height: 24px; }
-.map-head .more { font-size: 12px; line-height: 18px; color: var(--primary); }
-.map { width: 350px; height: 360px; border-radius: 16px; display: block; }
-.legend { width: 350px; display: flex; gap: 8px; }
-.legend span { display: flex; align-items: center; gap: 6px; padding: 6px 12px 6px 10px; border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border-card); font-size: 12px; line-height: 16px; font-weight: 600; color: var(--text-2); }
-.legend i { width: 10px; height: 10px; border-radius: 50%; }
-
-/* ── 음성 입력 ── */
-.talk { padding: 20px 30px 0; display: flex; flex-direction: column; gap: 0; }
-.talk .intro { font-size: 15px; line-height: 22px; font-weight: 600; color: var(--text-accent); }
-.talk .lead { margin-top: 26px; font-size: 22px; line-height: 30px; font-weight: 700; color: var(--text-accent); }
-.talk .heard { margin-top: 43px; min-height: 60px; text-align: right; font-size: 22px; line-height: 30px; font-weight: 700; color: var(--bg-accent); padding-left: 26px; }
-.talk .reply { margin-top: 43px; font-size: 22px; line-height: 30px; font-weight: 700; color: var(--text-accent); opacity: 0; transition: opacity .3s; }
-.talk .reply.on { opacity: 1; }
-.voice-actions { margin-top: auto; display: flex; gap: 20px; justify-content: center; padding: 0 26px calc(32px + env(safe-area-inset-bottom) / var(--z)); }
-.pill-btn { width: 165px; height: 72px; border-radius: 40px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .14s; }
-.pill-btn:active { transform: scale(.96); }
-.write { background: #F6F7FF; color: #4469E0; font-size: 22px; line-height: 30px; font-weight: 700; }
-.mic { background: var(--primary); }
-.mic .core { width: 150px; height: 61px; border-radius: 40px; background: var(--primary); display: grid; place-items: center;
-  box-shadow: 0 0 7px #0B2BC6, inset 1px 0 10.9px #004989; }
-.bars { display: flex; align-items: center; gap: 1.2px; height: 22px; }
-.bars i { width: 6px; border-radius: 10px; background: var(--bg-accent); }
-.bars i:nth-child(1), .bars i:nth-child(5) { height: 8px; }
-.bars i:nth-child(2), .bars i:nth-child(4) { height: 16px; margin: 0 1.6px; }
-.bars i:nth-child(3) { height: 22px; }
-.listening .bars i { animation: bar .7s ease-in-out infinite alternate; }
-.listening .bars i:nth-child(2) { animation-delay: .1s } .listening .bars i:nth-child(3) { animation-delay: .2s }
-.listening .bars i:nth-child(4) { animation-delay: .3s } .listening .bars i:nth-child(5) { animation-delay: .4s }
-@keyframes bar { from { transform: scaleY(.35) } to { transform: scaleY(1.15) } }
-.listening .core { animation: glow 1.2s ease-in-out infinite alternate; }
-@keyframes glow { to { box-shadow: 0 0 22px #3396FF, inset 1px 0 10.9px #004989; } }
-
-/* ── 텍스트 입력 ── */
-.chat { flex: 1; overflow-y: auto; padding: 10px 26px 16px 24px; display: flex; flex-direction: column; gap: 20px; }
-.bubble { max-width: 262px; padding: 10px; border-radius: 20px; animation: pop .25s ease-out; }
-.bubble.me { align-self: flex-end; background: var(--bg-accent); font-size: 14px; line-height: 21px; font-weight: 500; }
-.bubble.bot { align-self: flex-start; max-width: 216px; background: var(--bg-app); font-size: 15px; line-height: 22px; font-weight: 600; }
-@keyframes pop { from { opacity: 0; transform: translateY(8px) } }
-.composer { flex: none; margin: 0 26px calc(16px + env(safe-area-inset-bottom) / var(--z)); height: 45px; border-radius: 30px; background: var(--bg-card);
-  display: flex; align-items: center; padding: 5px 5px 5px 15px; gap: 8px; }
-.composer input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: 600 16px/22px "Gothic A1", sans-serif; color: var(--text); }
-.composer input::placeholder { color: var(--text-disabled); }
-
-/* ── AI 유형 확인 / 접수 완료 ── */
-.content { padding: 20px 26px calc(24px + env(safe-area-inset-bottom) / var(--z)); display: flex; flex-direction: column; gap: 12px; }
-.badge { align-self: flex-start; display: flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 999px; background: var(--bg-accent); color: var(--primary); font-size: 12px; line-height: 16px; font-weight: 600; }
-.h-title { font-size: 22px; line-height: 30px; font-weight: 700; }
-.h-sub { font-size: 13px; line-height: 18px; font-weight: 600; color: var(--text-2); }
-.quote { background: var(--bg-card); border-radius: 16px; padding: 12px 14px; font-size: 14px; line-height: 21px; font-weight: 500; color: var(--text-accent); }
-.quote img { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; display: block; margin-bottom: 8px; }
-.result { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 24px; padding: 18px 10px 18px; display: flex; flex-direction: column; gap: 12px; }
-.result .cap { padding: 0 10px; font-size: 14px; line-height: 21px; font-weight: 500; color: var(--primary); }
-.row { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: var(--bg-subtle); border: 1px solid var(--border-subtle); text-align: left; }
-.row.sel { background: var(--bg-accent-soft); border: 1.5px solid var(--primary); }
-.row .ic { width: 44px; height: 44px; border-radius: 14px; background: var(--bg-card); display: grid; place-items: center; flex: none; }
-.row small { display: block; font-size: 12px; line-height: 18px; color: var(--text-2); }
-.row strong { display: block; margin-top: 3px; font-size: 15px; line-height: 22px; font-weight: 600; }
-.note { padding: 0 15px; font-size: 12px; line-height: 18px; color: var(--text-2); }
-.done-ic { align-self: center; width: 76px; height: 76px; border-radius: 38px; background: var(--bg-card); border: 2px solid var(--primary); display: grid; place-items: center; color: var(--primary); box-shadow: 0 6px 20px rgba(0,70,255,.2); animation: pop .4s ease-out; }
-.center { text-align: center; }
-.info { background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 11px; }
-.info .hd { display: flex; justify-content: space-between; align-items: center; }
-.info .hd b { font-size: 16px; line-height: 24px; }
-.tag { padding: 5px 10px; border-radius: 999px; background: var(--bg-accent); color: var(--primary); font-size: 12px; line-height: 16px; font-weight: 600; }
-.kv { display: flex; gap: 12px; align-items: baseline; }
-.kv span { width: 78px; flex: none; font-size: 12px; line-height: 18px; color: var(--text-2); }
-.kv b { font-size: 14px; line-height: 21px; font-weight: 500; }
-.stage { background: var(--bg-accent-soft); border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-.stage .hd { display: flex; justify-content: space-between; font-size: 14px; line-height: 21px; font-weight: 500; }
-.stage .hd em { font-style: normal; color: var(--primary); }
-.prog { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
-.prog i { height: 8px; border-radius: 4px; background: var(--border-strong); }
-.prog i.on { background: var(--primary); }
-.steps { display: grid; grid-template-columns: repeat(4, 1fr); font-size: 12px; line-height: 18px; color: var(--text-muted); }
-.steps .on { color: var(--primary); }
-.alert { background: var(--bg-card); border-radius: 14px; padding: 10px 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; line-height: 18px; color: var(--text-accent); }
-
-/* 시트·토스트·로딩 */
-.dim { position: absolute; inset: 0; background: rgba(0,24,61,.4); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 10; }
-.dim.on { opacity: 1; pointer-events: auto; }
-.sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 11; background: var(--bg-card); border-radius: 28px 28px 0 0;
-  padding: 12px 26px calc(24px + env(safe-area-inset-bottom) / var(--z)); transform: translateY(105%); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
-.sheet.on { transform: none; }
-.sheet .handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border-strong); margin: 0 auto 18px; }
-.sheet h3 { margin: 0 0 14px; font-size: 18px; line-height: 26px; }
-.types { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.types button { height: 64px; border-radius: 18px; background: var(--bg-subtle); border: 1px solid var(--border-subtle); font-size: 15px; font-weight: 600; }
-.types button.sel { background: var(--bg-accent-soft); border: 1.5px solid var(--primary); color: var(--primary); }
-.toast { position: absolute; left: 26px; right: 26px; bottom: calc(110px + env(safe-area-inset-bottom) / var(--z)); z-index: 20; background: var(--text); color: var(--on-brand);
-  border-radius: 14px; padding: 14px 16px; display: flex; gap: 10px; align-items: center; font-size: 14px; line-height: 21px; font-weight: 500;
-  box-shadow: 0 8px 24px rgba(0,24,61,.18); opacity: 0; transform: translateY(10px); transition: .25s; pointer-events: none; }
-.toast.on { opacity: 1; transform: none; }
-.loading { position: absolute; inset: 0; z-index: 30; background: var(--grad); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 18px; font-size: 18px; font-weight: 700; color: var(--text-accent); }
-.loading.on { display: flex; }
-.spin { width: 48px; height: 48px; border-radius: 50%; border: 4px solid rgba(250,253,255,.6); border-top-color: var(--primary); animation: spin .8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg) } }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <!-- 아이콘: Figma icon 컴포넌트에서 그대로 내보낸 패스, 색은 currentColor -->
@@ -188,6 +28,24 @@ svg { display: block; }
   <symbol id="i-location" viewBox="0 0 24 24"><path fill="currentColor" d="M12.001 2C16.4199 2 20.0028 5.58214 20.0029 10.001C20.0029 12.813 17.5721 16.5858 12.7119 21.3193L12.001 22.0029L11.6416 21.6592L10.9473 20.9834L10.5869 20.623L12.0557 19.1553L12.0537 19.1543L12.2188 18.9902C16.0047 15.1455 17.904 12.1311 17.999 10.1553L18.0029 10.001C18.0028 6.6867 15.3153 4 12.001 4C8.68679 4.00014 6.00014 6.68679 6 10.001C6 11.7636 7.51704 14.4058 10.6152 17.7656L9.19922 19.1816C8.95794 18.921 8.72546 18.6632 8.50098 18.4092L7.97168 17.7979C7.54468 17.2943 7.15208 16.8044 6.79395 16.3281L6.38086 15.7627C4.79388 13.5284 4 11.6078 4 10.001C4.00014 5.58222 7.58222 2.00014 12.001 2ZM12.001 6C14.2107 6 16.0028 7.79127 16.0029 10.001C16.0029 12.2108 14.2108 14.0029 12.001 14.0029C9.79127 14.0028 8 12.2107 8 10.001C8.00014 7.79136 9.79136 6.00014 12.001 6ZM12.001 7.7998C10.7855 7.79994 9.79994 8.78547 9.7998 10.001C9.7998 11.2166 10.7854 12.202 12.001 12.2021C13.2167 12.2021 14.2021 11.2167 14.2021 10.001C14.202 8.78539 13.2166 7.7998 12.001 7.7998Z"/></symbol>
   <symbol id="i-tool" viewBox="0 0 24 24"><path fill="currentColor" d="M13.9497 4.05025C15.9172 6.01767 16.4686 8.86483 15.6042 11.3254L22.8032 18.5252L18.5606 22.7678L17.146 21.353L19.974 18.525L13.3001 11.8498L13.7172 10.6625C14.324 8.93543 13.9447 7.00684 12.7024 5.63956L12.5355 5.46447C11.3974 4.32634 9.83273 3.84448 8.33532 4.04328L8.293 4.05L11.8282 7.58603L7.58579 11.8284L4.05 8.292L4.04334 8.33487C3.85434 9.75754 4.27974 11.241 5.29866 12.3617L5.46447 12.5355C6.79102 13.8621 8.72033 14.3181 10.472 13.7799L10.6994 13.7041L11.8936 13.2739L17.145 18.525L15.732 19.939L11.3772 15.5858C8.90484 16.4763 6.03147 15.931 4.05025 13.9497C1.55666 11.4562 1.33767 7.54931 3.39327 4.80749L7.58579 9L9 7.58579L4.8083 3.39266C7.55008 1.33771 11.4564 1.55691 13.9497 4.05025Z"/></symbol>
   <symbol id="i-bell" viewBox="0 0 24 24"><path fill="currentColor" d="M12 1C13.1046 1 14 1.89543 14 3V3.25195C17.4503 4.14016 20 7.27245 20 11V20L15.874 20.001C15.4297 21.7257 13.8635 23 12 23C10.1499 23 8.58266 21.7402 8.12988 20H4V18H18V11C18 7.7616 15.4341 5.1222 12.2246 5.00391L12 5C8.7616 5 6.1222 7.5659 6.00391 10.7754L6 11V16H4V11C4 7.27209 6.5502 4.13981 10.001 3.25195L10 3C10 1.89543 10.8954 1 12 1ZM10.3125 20.0742C10.6129 20.5447 11.1046 20.8803 11.6758 20.9736L11.8496 20.9941L12 21C12.6443 21 13.2172 20.6948 13.583 20.2217L13.6777 20.0889L13.7314 20H10.2686L10.3125 20.0742Z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path fill="currentColor" d="M12.0001 1L15.5268 8.1459L23.4128 9.2918L17.7064 14.8541L19.0535 22.7082L12.0001 19L4.94666 22.7082L6.29374 14.8541L0.587402 9.2918L6.9514 8.366L8.7164 10.131L4.88508 10.688L8.4427 14.1559L7.60208 19.051L12.0001 16.7404L16.3971 19.051L15.5575 14.1559L19.1141 10.688L14.1987 9.97391L12.0001 5.519L10.3254 8.911L8.8314 7.417L12.0001 1Z"/></symbol>
+  <symbol id="i-message" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22H2V20L4 18.001C2.93269 16.5803 2.23516 14.8659 2.0498 13.001H4.06152C4.22085 14.28 4.68501 15.4867 5.41113 16.5381L5.59863 16.7998L6.6416 18.1875L4.82812 20H12C16.3349 20 19.8644 16.552 19.9961 12.249L20 12C20 7.58172 16.4183 4 12 4C7.92037 4 4.5536 7.05367 4.06152 11H2.0498C2.55158 5.94673 6.81469 2 12 2ZM9 13H7V11H9V13ZM13 13H11V11H13V13ZM17 13H15V11H17V13Z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path fill="currentColor" d="M16.5996 5H22V21H2V19H20V7H15.6387L14.0391 5H9.95996L8.36133 7H4V17H2V5H7.40039L9 3H15L16.5996 5ZM12 8.00391C14.7604 8.00391 16.998 10.2416 16.998 13.002C16.998 15.7623 14.7603 18 12 18C9.23965 18 7.00197 15.7623 7.00195 13.002C7.00195 10.2416 9.23964 8.00391 12 8.00391ZM12 10.0039C10.3442 10.0039 9.00195 11.3462 9.00195 13.002C9.00197 14.6577 10.3442 16 12 16C13.6558 16 14.998 14.6577 14.998 13.002C14.998 11.3462 13.6558 10.0039 12 10.0039Z"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path fill="currentColor" d="M12 4C15.2231 4 17.9374 6.1788 18.751 9.14355C21.1857 9.70961 23 11.8927 23 14.5C23 17.3687 20.8038 19.7245 18.001 19.9775L18 20H7C4.02714 20 1.56117 17.8375 1.08496 15H3.12598C3.55415 16.6633 5.02554 17.9078 6.80078 17.9951L7 18H17.6543L17.8213 17.9854C19.5514 17.829 20.9039 16.4164 20.9951 14.6865L21 14.5C21 12.9296 19.9565 11.5688 18.4844 11.1396L18.2979 11.0908L17.1377 10.8213L16.8223 9.67285C16.2515 7.59302 14.3953 6.10195 12.2256 6.00488L12 6C10.0796 6.00002 8.3592 7.09244 7.52246 8.77148L7.42676 8.97559L7.02539 9.87988L6.06348 10.1094C4.61076 10.4572 3.49146 11.5869 3.12695 13H1.08398C1.4829 10.6232 3.27863 8.72036 5.59863 8.16504C6.68639 5.71187 9.14312 4.00002 12 4ZM16.1719 12.3994L14.8994 13.6719L12.999 11.7715L13 16.5H11L10.999 11.7734L9.10059 13.6719L7.82812 12.3994L12 8.22754L16.1719 12.3994Z"/></symbol>
+  <symbol id="i-album" viewBox="0 0 24 24"><path fill="currentColor" d="M22 22H8V20H20V8H22V22ZM18 18H2V6H4V13.8379L7.33301 10.5049L9.11133 12.2832L12.667 8.72754L16 12.0605V4H2V2H18V18ZM9.11133 14.8281L7.33301 13.0498L4.38379 16H16V14.6064L12.666 11.2725L9.11133 14.8281ZM7.5 5C8.88071 5 10 6.11929 10 7.5C10 8.88071 8.88071 10 7.5 10C6.11929 10 5 8.88071 5 7.5C5 6.11929 6.11929 5 7.5 5ZM7.5 6.7998C7.1134 6.7998 6.7998 7.1134 6.7998 7.5C6.7998 7.8866 7.1134 8.2002 7.5 8.2002C7.8866 8.2002 8.2002 7.8866 8.2002 7.5C8.2002 7.1134 7.8866 6.7998 7.5 6.7998Z"/></symbol>
+  <symbol id="i-security" viewBox="0 0 24 24"><path fill="currentColor" d="M21 4.30701V10.4564C20.9998 15.7827 17.8303 20.5833 12.9561 22.6918L12.6553 22.8177L12.0068 23.0707L11.6484 22.9359C6.54641 21.0224 3.1333 16.202 3.00391 10.7758L3 10.4564V4.30701L12 0.932007L21 4.30701ZM5 5.69275V10.4564C5.00016 14.8707 7.56028 18.8525 11.5059 20.7074L11.7832 20.8334L11.999 20.9242L12.2012 20.8402C16.1313 19.1271 18.7531 15.3381 18.9834 11.0687L18.9961 10.7631L19 10.4564V5.69275L12 3.06775L5 5.69275ZM17.6572 9.09607L10.5859 16.1674L6.34277 11.9242L7.75781 10.5101L10.5859 13.3383L16.2422 7.68201L17.6572 9.09607Z"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><path fill="currentColor" d="M21 21H3V19H19V5H5V17H3V3H21V21ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z"/></symbol>
+  <symbol id="i-radio-on" viewBox="0 0 24 24"><path fill="currentColor" d="M11.9995 2C17.5224 2 21.9995 6.47715 21.9995 12C21.9995 17.5228 17.5224 22 11.9995 22C6.81435 21.9998 2.55103 18.0532 2.04932 13H4.06494C4.55719 16.946 7.92021 19.9998 11.9995 20C16.4178 20 19.9995 16.4183 19.9995 12C19.9995 7.58172 16.4178 4 11.9995 4C7.92021 4.00021 4.55719 7.05401 4.06494 11H2.04932C2.55103 5.94681 6.81435 2.00021 11.9995 2ZM11.9995 7C14.7609 7 16.9995 9.23858 16.9995 12C16.9995 14.7614 14.7609 17 11.9995 17C9.23828 16.9998 6.99951 14.7613 6.99951 12C6.99951 9.23872 9.23828 7.00023 11.9995 7Z"/></symbol>
+  <symbol id="i-radio-off" viewBox="0 0 24 24"><path fill="currentColor" d="M12.0001 2C17.5229 2 22.0001 6.47715 22.0001 12C22.0001 17.5228 17.5229 22 12.0001 22C6.81508 22 2.55177 18.0539 2.04954 13.0011L4.06207 13.001C4.55459 16.9468 7.92076 20 12.0001 20C16.4183 20 20.0001 16.4183 20.0001 12C20.0001 7.58172 16.4183 4 12.0001 4C7.92042 4 4.55402 7.05371 4.06194 11L2.04944 10.9999C2.55121 5.94662 6.81474 2 12.0001 2Z"/></symbol>
+  <symbol id="i-back-ios" viewBox="0 0 24 24"><path fill="currentColor" d="M16.7072 19.592L15.2931 21.0071L9.11438 14.8274L10.5284 13.4133L16.7072 19.592ZM16.7072 4.40747L7.70032 13.4133L6.28625 12.0002L15.2931 2.99341L16.7072 4.40747Z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path fill="currentColor" d="M14.8838 14.8284L8.70703 21.0071L7.29297 19.592L13.4697 13.4143L14.8838 14.8284ZM17.7139 12.0002L16.2988 13.4143L7.29297 4.40747L8.70703 2.99341L17.7139 12.0002Z"/></symbol>
+  <symbol id="i-bell-off" viewBox="0 0 24 24"><path fill="currentColor" d="M21.8992 21.8994L20.4851 23.3135L17.1716 20L15.8738 20.001C15.4294 21.7257 13.8632 23 11.9998 23C10.1498 22.9999 8.58239 21.7401 8.12964 20H3.99976V18H15.1716L6.29858 9.12695C6.12727 9.6486 6.02481 10.2016 6.00366 10.7754L5.99976 11V16H3.99976V11C3.99976 9.78039 4.27432 8.62519 4.76245 7.59082L0.686279 3.51465L2.10034 2.10059L21.8992 21.8994ZM10.3123 20.0742C10.6126 20.5447 11.1044 20.8803 11.6755 20.9736L11.8494 20.9941L11.9998 21C12.644 21 13.217 20.6948 13.5828 20.2217L13.6775 20.0889L13.7312 20H10.2683L10.3123 20.0742ZM11.9998 1C13.1043 1 13.9998 1.89543 13.9998 3V3.25195C17.45 4.14016 19.9998 7.27245 19.9998 11V17.1719L17.9998 15.1719V11C17.9998 7.7616 15.4339 5.1222 12.2244 5.00391L11.9998 5C10.8108 5.00004 9.70252 5.3457 8.77026 5.94238L7.33276 4.50488C8.12587 3.93354 9.0268 3.50257 10.0007 3.25195L9.99976 3C9.99976 1.89551 10.8953 1.00013 11.9998 1Z"/></symbol>
+  <symbol id="i-done" viewBox="0 0 24 24"><path fill="currentColor" d="M20.8777 6.36893L8.85688 18.3897L2.49292 12.0258L3.90713 10.6116L8.85688 15.5609L19.4635 4.95471L20.8777 6.36893Z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 22 22"><circle cx="4.5" cy="11.5" r="1.5" fill="currentColor"/><circle cx="11.5" cy="11.5" r="1.5" fill="currentColor"/><circle cx="17.5" cy="11.5" r="1.5" fill="currentColor"/></symbol>
+  <symbol id="i-lamp" viewBox="0 0 20 20"><path d="M7.5 18.3332V4.99984C7.5 4.11578 7.85119 3.26794 8.47631 2.64281C9.10143 2.01769 9.94928 1.6665 10.8333 1.6665H15V5.83317H10.8333C9.94928 5.83317 9.10143 6.18436 8.47631 6.80948C7.85119 7.4346 7.5 8.28245 7.5 9.1665M5 18.3332H10" fill="none" stroke="currentColor" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="t-home" viewBox="0 0 34 34"><path fill="currentColor" d="M20.8767 15.6316C21.6325 15.6316 22.2452 16.2443 22.2452 17V27.2632H26.0471C26.4132 27.2631 26.7388 27.1306 26.9585 26.9331C27.1734 26.7396 27.2632 26.5097 27.2632 26.305V14.2231L17 7.03758L6.73684 14.2231V26.305C6.73684 26.5097 6.82655 26.7396 7.04153 26.9331C7.2612 27.1306 7.58681 27.2631 7.95292 27.2632H11.7548V17C11.7548 16.2443 12.3675 15.6316 13.1233 15.6316H20.8767ZM14.4917 27.2632H19.5083V18.3684H14.4917V27.2632ZM30 26.305C30 27.3342 29.5438 28.2879 28.7893 28.967C28.0396 29.6416 27.0515 29.9999 26.0471 30H7.95292C6.94846 29.9999 5.96039 29.6416 5.21073 28.967C4.45622 28.2879 4 27.3342 4 26.305V13.5108C4 13.0643 4.21817 12.6457 4.58398 12.3896L16.2156 4.24729L16.3986 4.13904C16.8407 3.92268 17.3722 3.95888 17.7844 4.24729L29.416 12.3896C29.7818 12.6457 30 13.0643 30 13.5108V26.305Z"/></symbol>
+  <symbol id="t-news" viewBox="0 0 34 34"><path fill="currentColor" d="M3 5.38889C3 4.62183 3.60442 4 4.35 4H28.65C29.3956 4 30 4.62183 30 5.38889V27.6111C30 28.3782 29.3956 29 28.65 29H4.35C3.60442 29 3 28.3782 3 27.6111V5.38889ZM5.7 6.77778V26.2222H27.3V6.77778H5.7ZM8.4 9.55556H16.5V17.8889H8.4V9.55556ZM11.1 12.3333V15.1111H13.8V12.3333H11.1ZM19.2 12.3333H24.6V9.55556H19.2V12.3333ZM24.6 17.8889H19.2V15.1111H24.6V17.8889ZM8.4 20.6667V23.4444H24.6V20.6667H8.4Z"/></symbol>
+  <symbol id="t-user" viewBox="0 0 34 34"><path fill="currentColor" d="M17.7083 16.5037C23.5762 16.5037 28.3331 20.8169 28.3333 26.1375V29.7507H7.08334V27.3425H25.6771V26.1375C25.6769 22.2378 22.2696 19.0602 18.0072 18.9177L17.7083 18.9119C13.7599 18.9119 10.4823 21.5161 9.84995 24.9333H7.16537C7.81903 20.1811 12.2902 16.5037 17.7083 16.5037ZM17.7083 5.66675C20.6424 5.66675 23.0208 7.82377 23.0208 10.4841C23.0206 13.1443 20.6422 15.3005 17.7083 15.3005C14.7745 15.3005 12.3961 13.1443 12.3958 10.4841C12.3958 7.82377 14.7743 5.66675 17.7083 5.66675ZM17.7083 8.07788C16.2413 8.07788 15.0521 9.15591 15.0521 10.4861C15.0522 11.8162 16.2414 12.8943 17.7083 12.8943C19.1753 12.8943 20.3645 11.8162 20.3646 10.4861C20.3646 9.15591 19.1754 8.07788 17.7083 8.07788Z"/></symbol>
   <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 18L5 12L11 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
@@ -211,7 +69,7 @@ svg { display: block; }
       </div>
       <div class="sec-head"><b>자주 사용한 서비스</b><button class="more" data-toast="전체 서비스는 시연판에서 준비 중이에요">모두보기</button></div>
       <div class="grid">
-        <button class="svc card-press" data-toast="내 민원 Live는 시연판에서 준비 중이에요"><span class="pill" style="background:#D2E0FC">내 민원 Live</span><img src="img/card1.png" alt=""></button>
+        <button class="svc card-press" data-tab="live"><span class="pill" style="background:#D2E0FC">내 민원 Live</span><img src="img/card1.png" alt=""></button>
         <button class="svc card-press" id="photoCard"><span class="pill" style="background:#A7B5F9">사진으로 바로</span><img src="img/card2.png" alt=""></button>
         <button class="svc card-press" data-toast="우리동네 해결 소식은 시연판에서 준비 중이에요"><span class="pill" style="background:#A7B5F9;margin-right:35px">우리동네 해결 소식</span><img src="img/card3.png" alt=""></button>
         <button class="svc card-press" data-toast="포상 저금통은 시연판에서 준비 중이에요"><span class="pill" style="background:#D2E0FC">포상 저금통</span><img src="img/card4.png" alt=""></button>
@@ -286,9 +144,110 @@ svg { display: block; }
         <div class="steps"><span class="on">접수됨</span><span>검토 중</span><span>처리 중</span><span>완료</span></div>
       </div>
       <div class="alert"><svg width="18" height="18"><use href="#i-bell"/></svg>담당 기관 배정과 처리 상태 변경을 알림으로 안내해요.</div>
-      <div class="actions"><button class="btn neutral" data-home>홈으로</button><button class="btn brand" data-toast="내 민원 Live는 시연판에서 준비 중이에요">내 민원 보기</button></div>
+      <div class="actions"><button class="btn neutral" data-home>홈으로</button><button class="btn brand" data-tab="live">내 민원 보기</button></div>
     </div></div>
   </section>
+
+  <!-- 내 민원 · Live 리포트 -->
+  <section class="screen safe-top" id="live">
+    <div class="scroll"><div class="live">
+      <header class="live-head">
+        <div><p class="h-title">내 민원 Live</p><p class="live-sub">처리 현황을 한눈에 확인하세요</p></div>
+        <button class="bell" data-go="noti" aria-label="알림"><svg width="24" height="24"><use href="#i-bell"/></svg><i class="dot" id="notiDot"></i></button>
+      </header>
+      <div class="summary"><div><p>이번 달 접수한 민원</p><b id="sumText"></b></div><span class="ring" id="sumRing"></span></div>
+      <div class="filters" id="filters"></div>
+      <div class="cards" id="cards"></div>
+    </div></div>
+    <nav class="tabbar"><div>
+      <button data-tab="home"><svg width="34" height="34"><use href="#t-home"/></svg>홈</button>
+      <button data-toast="소식은 다음 업데이트에서 열려요"><svg width="34" height="34"><use href="#t-news"/></svg>소식</button>
+      <button data-toast="내 화면은 다음 업데이트에서 열려요"><svg width="34" height="34"><use href="#t-user"/></svg>내 화면</button>
+    </div></nav>
+  </section>
+
+  <!-- 민원 상세 (데이터로 채움) -->
+  <section class="screen safe-top" id="detail">
+    <div class="nav dnav"><button class="tap44" data-back><svg width="22" height="22"><use href="#i-back"/></svg></button><b id="dTitle">민원 신고 상세</b><button class="tap44" data-toast="공유·신고 내역 저장은 준비 중이에요"><svg width="22" height="22"><use href="#i-more"/></svg></button></div>
+    <div class="scroll"><div class="dcontent" id="dBody"></div></div>
+    <div class="bottom-action" id="dActions"></div>
+  </section>
+
+  <!-- 처리 결과 평가 -->
+  <section class="screen safe-top" id="rate">
+    <div class="fhead"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back"/></svg></button><b>처리 결과 평가</b></div>
+    <div class="scroll"><div class="form">
+      <p class="fsub">완료된 민원에 대한 만족도를 알려주세요</p>
+      <div class="target"><svg width="28" height="28" class="ti"><use href="#i-check"/></svg><div><b>포트홀 보수 완료</b><span>2026.09.08 · 공릉동 화랑로</span><em>처리 완료 · 도로관리과</em></div></div>
+      <div class="box"><b>처리 결과에 만족하시나요?</b><span class="hint">별을 눌러 평가해주세요</span>
+        <div class="stars" id="stars"><button data-s="1"><svg width="32" height="32"><use href="#i-star"/></svg></button><button data-s="2"><svg width="32" height="32"><use href="#i-star"/></svg></button><button data-s="3"><svg width="32" height="32"><use href="#i-star"/></svg></button><button data-s="4"><svg width="32" height="32"><use href="#i-star"/></svg></button><button data-s="5"><svg width="32" height="32"><use href="#i-star"/></svg></button></div>
+        <p class="star-label" id="starLabel">&nbsp;</p></div>
+      <div class="box"><b>의견을 남겨주세요</b><textarea class="ta" rows="3" placeholder="좋았던 점이나 개선할 점을 입력해주세요."></textarea></div>
+      <p class="fnote">작성한 평가는 서비스 개선을 위해 사용됩니다.</p>
+      <button class="linkrow card-press" data-toast="이의 제기는 고객센터로 연결돼요">처리 결과 이의 제기<svg width="20" height="20"><use href="#i-chev"/></svg></button>
+    </div></div>
+    <div class="bottom-action"><button class="btn brand" id="rateSubmit">평가 제출하기</button></div>
+  </section>
+
+  <!-- 문의하기 -->
+  <section class="screen safe-top" id="ask">
+    <div class="fhead"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back"/></svg></button><b>문의하기</b></div>
+    <div class="scroll"><div class="form">
+      <p class="fsub">처리 중인 민원에 대해 담당 기관에 문의합니다</p>
+      <div class="target"><svg width="28" height="28" class="ti"><use href="#i-message"/></svg><div><b class="tTitle"></b><em class="tNo"></em><span class="tOrg"></span></div></div>
+      <b class="flabel">문의 유형</b>
+      <div class="seg" id="askType"><button class="on">처리 일정</button><button>현장 확인</button><button>기타 문의</button></div>
+      <b class="flabel">문의 내용</b>
+      <div class="tabox"><textarea class="ta big" maxlength="500" placeholder="담당 기관에 전달할 내용을 입력해주세요.&#10;예: 현장 점검 예정 시간을 알고 싶어요."></textarea><span class="count">0 / 500</span></div>
+      <button class="linkrow photo card-press" data-pick="ask"><svg width="28" height="28"><use href="#i-camera"/></svg><span><b>사진 추가</b><small class="pickInfo">선택 사항 · 최대 5장</small></span><svg width="20" height="20"><use href="#i-chev"/></svg></button>
+      <div class="thumbs" data-thumbs="ask"></div>
+      <p class="fnote">문의 내용은 담당 기관에 전달되며 답변 시 알림을 보내드려요.</p>
+    </div></div>
+    <div class="bottom-action"><button class="btn brand" data-done="문의를 보냈어요. 답변이 오면 알려드릴게요">문의 보내기</button></div>
+  </section>
+
+  <!-- 추가 자료 보내기 -->
+  <section class="screen safe-top" id="extra">
+    <div class="fhead"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back"/></svg></button><b>추가 자료 보내기</b></div>
+    <div class="scroll"><div class="form">
+      <p class="fsub">현장 사진이나 설명을 담당 기관에 추가로 전달합니다</p>
+      <div class="target"><svg width="28" height="28" class="ti"><use href="#i-upload"/></svg><div><b class="tTitle"></b><em class="tNo"></em></div></div>
+      <div class="flabel row2"><b>사진 및 파일</b><span>최대 5개 · 파일당 20MB</span></div>
+      <button class="drop" data-pick="extra"><svg width="48" height="48"><use href="#i-upload"/></svg><b>사진 또는 파일을 추가해주세요</b><span>카메라 촬영 · 사진 보관함 · 파일</span></button>
+      <div class="thumbs" data-thumbs="extra"></div>
+      <div class="two"><button class="card-press" data-pick="extra" data-cap="1"><svg width="24" height="24"><use href="#i-camera"/></svg>카메라</button><button class="card-press" data-pick="extra"><svg width="24" height="24"><use href="#i-album"/></svg>사진 보관함</button></div>
+      <b class="flabel">추가 설명</b>
+      <div class="tabox"><textarea class="ta mid" maxlength="500" placeholder="담당자가 확인해야 할 내용을 입력해주세요."></textarea><span class="count">0 / 500</span></div>
+      <div class="privacy"><svg width="24" height="24"><use href="#i-security"/></svg>개인정보가 포함된 사진은 가린 후 첨부해주세요.</div>
+    </div></div>
+    <div class="bottom-action"><button class="btn brand" data-done="추가 자료를 보냈어요">자료 보내기</button></div>
+  </section>
+
+  <!-- 01_알림 -->
+  <section class="screen safe-top" id="noti" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>알림</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="notis" id="notis"></div></div>
+  </section>
+
+  <input type="file" id="picker" accept="image/*" multiple hidden>
+
+  <!-- 접수 취소 바텀시트 -->
+  <div class="sheet cancel" id="cancelSheet">
+    <div class="handle"></div>
+    <div class="warn"><span class="wi"><svg width="24" height="24"><use href="#i-info"/></svg></span><div><b>민원 접수를 취소할까요?</b><p>취소하면 현재 접수 내용은 복구할 수 없습니다.</p></div></div>
+    <b class="flabel">취소 사유</b>
+    <div class="reasons" id="reasons"><button class="on"><svg width="24" height="24"><use href="#i-radio-on"/></svg>문제가 해결되었어요</button><button><svg width="24" height="24"><use href="#i-radio-off"/></svg>잘못 접수했어요</button><button><svg width="24" height="24"><use href="#i-radio-off"/></svg>직접 수정하고 싶어요</button></div>
+    <p class="fnote">취소 후 동일한 내용은 새 민원으로 다시 접수할 수 있어요.</p>
+    <div class="actions"><button class="btn neutral" data-close style="width:168px">돌아가기</button><button class="btn danger" id="cancelGo">접수 취소하기</button></div>
+  </div>
+
+  <!-- 소식 공개 중지 확인 -->
+  <div class="dlg" id="stopDlg">
+    <span class="di"><svg width="24" height="24"><use href="#i-bell-off"/></svg></span>
+    <b>소식 공개를 중지할까요?</b>
+    <p>이웃이 이 민원의 사진과 결과를 볼 수 없어요.<br>나중에 다시 공개할 수 있어요.</p>
+    <div class="actions"><button class="btn neutral" data-close style="width:122px">취소</button><button class="btn danger" id="stopGo">공개 중지</button></div>
+  </div>
 
   <div class="dim" id="dim"></div>
   <div class="sheet" id="sheet">
@@ -300,137 +259,6 @@ svg { display: block; }
   <div class="loading" id="loading"><span class="spin"></span>민원을 보내고 있어요</div>
 </div>
 
-<script>
-const $ = s => document.querySelector(s);
-const app = $('#app');
-app.addEventListener('scroll', () => { app.scrollLeft = 0; app.scrollTop = 0; }); // clip 미지원 브라우저용
-
-// 화면 맞춤: 폰은 가로를 꽉 채우고, 넓은 화면은 높이에 맞춘 세로 기둥으로
-function fit() {
-  const vv = window.visualViewport || { width: innerWidth, height: innerHeight };
-  const z = innerWidth < 600 ? innerWidth / 402 : Math.min(1, innerHeight / 874);
-  document.documentElement.style.setProperty('--z', z);
-  document.documentElement.style.setProperty('--h', (vv.height / z) + 'px');
-  window.scrollTo(0, 0);
-}
-fit(); addEventListener('resize', fit); window.visualViewport && visualViewport.addEventListener('resize', fit);
-
-// 화면 이동
-const stack = ['home'];
-function show(fromId, id, back) {
-  const cur = $('#' + fromId), next = $('#' + id);
-  if (cur === next) return;
-  if (back) { cur.classList.remove('active'); next.classList.remove('behind'); next.classList.add('active'); }
-  else { cur.classList.remove('active'); cur.classList.add('behind'); next.classList.add('active'); }
-  setTimeout(() => document.querySelectorAll('.screen.behind').forEach(s => { if (s !== next) s.classList.remove('behind'); }), 340);
-  onEnter(id);
-}
-function go(id) { show(stack[stack.length - 1], id); stack.push(id); }
-function back() { if (stack.length < 2) return; const from = stack.pop(); show(from, stack[stack.length - 1], true); onLeave(from); }
-function home() { const from = stack[stack.length - 1]; stack.length = 1; show(from, 'home', true); onLeave(from); }
-
-let toastT;
-function toast(msg) { const t = $('#toast'); t.querySelector('span').textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 2000); }
-
-document.addEventListener('click', e => {
-  const b = e.target.closest('button'); if (!b) return;
-  if (b.dataset.go) go(b.dataset.go);
-  else if ('back' in b.dataset) back();
-  else if ('home' in b.dataset) home();
-  else if (b.dataset.toast) toast(b.dataset.toast);
-  else if ('sheet' in b.dataset) openSheet();
-  else if (b.dataset.say) { pending = b.dataset.say; go('voice'); }
-});
-
-// 민원 유형 분류 (시연용 키워드 규칙)
-const TYPES = [
-  { k: '환경·쓰레기', name: '생활폐기물 · 쓰레기 무단투기', ic: 'i-delete', re: /쓰레기|투기|악취|폐기물/ },
-  { k: '불법주정차', name: '불법주정차 · 주차 단속', ic: 'i-location', re: /주차|주정차|차가|킥보드/ },
-  { k: '도로·교통', name: '도로·교통 · 도로 파손', ic: 'i-location', re: /도로|보도|블록|포트홀|횡단보도|신호/ },
-  { k: '시설물', name: '시설물 · 가로등 고장', ic: 'i-tool', re: /가로등|고장|깜빡|파손|시설/ },
-  { k: '생활안전', name: '생활안전 · 위험 요소 신고', ic: 'i-location', re: /위험|안전|사고|낙하/ },
-  { k: '기타 민원', name: '기타 민원', ic: 'i-check', re: /$^/ },
-];
-let state = { text: '', photo: null, type: TYPES[0] };
-const classify = t => TYPES.find(x => x.re.test(t)) || TYPES[5];
-function setType(t) { state.type = t; $('#typeName').textContent = t.name; $('#typeIc use').setAttribute('href', '#' + t.ic); }
-function toConfirm(text, photo) {
-  state.text = text; state.photo = photo || null;
-  const q = $('#quote'); q.innerHTML = '';
-  if (photo) { const img = new Image(); img.src = photo; q.append(img); }
-  q.append(document.createTextNode(photo ? '사진에서 도로 파손이 보여요. 위치는 사진과 함께 기록됐어요.' : '“' + text + '”'));
-  $('#cSub').textContent = photo ? '찍어주신 사진을 바탕으로 가장 알맞은 유형을 찾았어요.' : '말씀하신 내용을 바탕으로 가장 알맞은 유형을 찾았어요.';
-  setType(photo ? TYPES[2] : classify(text));
-  go('confirm');
-}
-
-// 유형 변경 시트
-$('#types').innerHTML = TYPES.map((t, i) => `<button data-i="${i}">${t.k}</button>`).join('');
-function openSheet() {
-  document.querySelectorAll('#types button').forEach(b => b.classList.toggle('sel', TYPES[b.dataset.i] === state.type));
-  $('#dim').classList.add('on'); $('#sheet').classList.add('on');
-}
-function closeSheet() { $('#dim').classList.remove('on'); $('#sheet').classList.remove('on'); }
-$('#dim').onclick = closeSheet;
-$('#types').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; setType(TYPES[b.dataset.i]); closeSheet(); toast('유형을 바꿨어요'); });
-
-// 접수
-$('#submit').onclick = () => {
-  $('#loading').classList.add('on');
-  setTimeout(() => {
-    const d = new Date(), p = n => String(n).padStart(2, '0');
-    $('#dNo').textContent = `N-${String(d.getFullYear()).slice(2)}${p(d.getMonth() + 1)}${p(d.getDate())}-${String(Math.floor(Math.random() * 900) + 100)}`;
-    $('#dType').textContent = state.type.name;
-    $('#loading').classList.remove('on');
-    go('done');
-  }, 1300);
-};
-
-// 음성 입력: 지원 브라우저는 실제 인식, 아니면 시연 문장을 받아쓰기처럼 보여준다
-let pending = null, rec = null, typing = null;
-const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-function resetVoice() { $('#heard').textContent = ''; $('#reply').classList.remove('on'); $('#mic').classList.remove('listening'); clearInterval(typing); rec && rec.abort(); rec = null; }
-function finishVoice(text) {
-  $('#mic').classList.remove('listening');
-  if (!text.trim()) { toast('잘 못 들었어요. 다시 말해 주세요'); return; }
-  $('#heard').textContent = text; $('#reply').classList.add('on');
-  setTimeout(() => stack[stack.length - 1] === 'voice' && toConfirm(text), 1200);
-}
-function fakeType(text) {
-  $('#mic').classList.add('listening'); let i = 0; $('#heard').textContent = '';
-  typing = setInterval(() => { $('#heard').textContent = text.slice(0, ++i); if (i >= text.length) { clearInterval(typing); setTimeout(() => finishVoice(text), 400); } }, 70);
-}
-$('#mic').onclick = () => {
-  if ($('#mic').classList.contains('listening')) { rec ? rec.stop() : null; return; }
-  resetVoice();
-  if (!SR) return fakeType('우리 골목에 쓰레기가 쌓였어요. 처리해 주세요.');
-  rec = new SR(); rec.lang = 'ko-KR'; rec.interimResults = true; let final = '';
-  rec.onresult = e => { final = Array.from(e.results).map(r => r[0].transcript).join(''); $('#heard').textContent = final; };
-  rec.onerror = () => { rec = null; fakeType('우리 골목에 쓰레기가 쌓였어요. 처리해 주세요.'); };
-  rec.onend = () => { if (rec) { rec = null; finishVoice(final); } };
-  $('#mic').classList.add('listening'); rec.start();
-};
-
-// 텍스트 입력
-$('#composer').onsubmit = e => {
-  e.preventDefault(); const v = $('#msg').value.trim(); if (!v) return;
-  const chat = $('#chat'); const me = document.createElement('div'); me.className = 'bubble me'; me.textContent = v; chat.append(me);
-  $('#msg').value = ''; $('#msg').blur();
-  setTimeout(() => { const bot = document.createElement('div'); bot.className = 'bubble bot'; bot.textContent = '안녕하세요, 주신 민원 빠르게 처리하겠습니다.'; chat.append(bot); chat.scrollTop = 1e6; }, 500);
-  setTimeout(() => stack[stack.length - 1] === 'text' && toConfirm(v), 1600);
-  chat.scrollTop = 1e6;
-};
-$('#chat').addEventListener('click', () => $('#msg').blur());
-
-// 사진으로 바로: 폰 카메라를 바로 연다
-$('#photoCard').onclick = () => $('#camera').click();
-$('#camera').onchange = e => { const f = e.target.files[0]; if (f) toConfirm('', URL.createObjectURL(f)); e.target.value = ''; };
-
-function onEnter(id) {
-  if (id === 'voice') { resetVoice(); if (pending) { const t = pending; pending = null; setTimeout(() => fakeType(t), 350); } }
-  if (id === 'text') setTimeout(() => $('#msg').focus(), 350);
-}
-function onLeave(id) { if (id === 'voice') resetVoice(); }
-</script>
+<script src="app.js"></script>
 </body>
 </html>
