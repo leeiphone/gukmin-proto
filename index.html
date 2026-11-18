@@ -100,7 +100,7 @@
         <button class="svc card-press" data-tab="live"><span class="pill" style="background:#D2E0FC">내 민원 Live</span><img src="img/card1.png" alt=""></button>
         <button class="svc card-press" id="photoCard"><span class="pill" style="background:#A7B5F9">사진으로 바로</span><img src="img/card2.png" alt=""></button>
         <button class="svc card-press" data-tab="news"><span class="pill" style="background:#A7B5F9;margin-right:35px">우리동네 해결 소식</span><img src="img/card3.png" alt=""></button>
-        <button class="svc card-press" data-toast="포상 저금통은 시연판에서 준비 중이에요"><span class="pill" style="background:#D2E0FC">포상 저금통</span><img src="img/card4.png" alt=""></button>
+        <button class="svc card-press" data-go="piggy"><span class="pill" style="background:#D2E0FC">포상 저금통</span><img src="img/card4.png" alt=""></button>
       </div>
       <div class="map-head"><b>우리동네 이슈 지도</b><button class="more" data-go="mapfull">전체보기</button></div>
       <button data-go="mapfull" style="display:block"><img class="map" src="img/map.png" alt="공릉2동 이슈 지도"></button>
@@ -349,6 +349,75 @@
       <div class="actions"><button class="btn neutral" data-toast="고객센터 문의는 다음 업데이트에서 열려요">문의하기</button><button class="btn brand" id="noticeSub">공사 시작 전 알림 받기</button></div>
     </div></div>
   </section>
+
+  <!-- 동네 포인트 -->
+  <section class="screen safe-top" id="piggy">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>동네 포인트</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts" id="ptsBody"></div></div>
+  </section>
+  <section class="screen safe-top" id="earn" style="background:#F9FBFF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>적립 상세</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts" id="earnBody"></div></div>
+  </section>
+  <section class="screen safe-top" id="convert" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>전환하기</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <div class="pcard2"><span>전환할 수 있는 동네 포인트</span><b class="ptBal"></b></div>
+      <p class="h-sub" style="font-size:14px;line-height:21px;font-weight:500">어디에 쓸지 골라주세요. 세 가지 모두 1P = 1원으로 전환돼요.</p>
+      <button class="way card-press" data-go="cpay"><span class="wi"><svg width="24" height="24"><use href="#i-cart"/></svg></span><span><b>지역상생페이로 전환</b><small>동네 가맹점에서 바로 쓰고 싶을 때</small><em>전환 즉시 사용 가능</em></span><svg width="18" height="18"><use href="#i-chev"/></svg></button>
+      <button class="way card-press" data-go="ctax"><span class="wi"><svg width="24" height="24"><use href="#i-doc"/></svg></span><span><b>지방세 납부에 사용</b><small>다음 고지서 부담을 줄이고 싶을 때</small><em>자동차세·재산세 등에 충당</em></span><svg width="18" height="18"><use href="#i-chev"/></svg></button>
+      <button class="way card-press" data-go="cdon"><span class="wi"><svg width="24" height="24"><use href="#i-heart"/></svg></span><span><b>기부하기</b><small>동네 이웃을 돕고 싶을 때</small><em>기부금 영수증 발급</em></span><svg width="18" height="18"><use href="#i-chev"/></svg></button>
+      <p class="pinfo"><svg width="18" height="18"><use href="#i-info"/></svg>동네 포인트는 현금으로 출금할 수 없어요. 전환한 뒤에는 되돌릴 수 없어요.</p>
+    </div></div>
+  </section>
+  <section class="screen safe-top" id="cpay" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>지역상생페이 전환</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <div class="amt" data-amt="pay"><span>전환할 포인트</span><label><input inputmode="numeric" value="10,000"><i>P</i></label><small class="ptBalTxt"></small>
+        <div class="qchips"><button data-q="5000">5,000P</button><button data-q="10000">10,000P</button><button data-q="all">전액</button></div></div>
+      <div class="calc"><div><span>전환 후 받는 금액</span><b class="cWon"></b></div><div><span>남는 동네 포인트</span><em class="cLeft"></em></div></div>
+      <p class="pinfo card"><svg width="18" height="18"><use href="#i-info"/></svg>노원구 지역상생페이로 전환돼요. 사용은 지역상생페이 앱에서 할 수 있어요.</p>
+      <button class="btn brand cGo" data-kind="pay" style="flex:none"></button>
+      <p class="pnote">전환한 뒤에는 동네 포인트로 되돌릴 수 없어요.</p>
+    </div></div>
+  </section>
+  <section class="screen safe-top" id="ctax" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>지방세 납부에 사용</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <p class="h-sub" style="font-size:14px;line-height:21px;font-weight:500">충당할 고지서를 선택해주세요.</p>
+      <div class="bills" id="bills"><button class="on" data-bill="자동차세 2기분" data-due="46200"><span><b>자동차세 2기분</b><small>납부기한 2026.09.30</small></span><em>46,200원</em></button><button data-bill="재산세 (주택)" data-due="128000"><span><b>재산세 (주택)</b><small>납부기한 2026.09.30</small></span><em>128,000원</em></button></div>
+      <div class="calc"><div><span>사용할 포인트</span><b class="tUse"></b></div><div><span>충당 후 남을 세액</span><em class="tRemain"></em></div><div><span>남는 동네 포인트</span><em class="tLeft"></em></div></div>
+      <p class="pinfo card"><svg width="18" height="18"><use href="#i-info"/></svg>세금을 깎아주는 감면이 아니라, 납부할 금액에 포인트를 대신 충당하는 방식이에요.</p>
+      <button class="btn brand cGo" data-kind="tax" style="flex:none"></button>
+    </div></div>
+  </section>
+  <section class="screen safe-top" id="cdon" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>기부하기</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <p class="h-sub" style="font-size:14px;line-height:21px;font-weight:500">기부처를 선택해주세요.</p>
+      <div class="bills" id="orgs"><button class="on" data-org="노원 이웃돌봄 기금"><span><b>노원 이웃돌봄 기금</b><small>홀로 사는 어르신 생활 지원</small></span><svg width="22" height="22"><use href="#i-radio-on"/></svg></button><button data-org="공릉2동 청소년 지원"><span><b>공릉2동 청소년 지원</b><small>방과 후 돌봄과 학습 지원</small></span><svg width="22" height="22"><use href="#i-radio-off"/></svg></button><button data-org="동네 환경 정비 기금"><span><b>동네 환경 정비 기금</b><small>골목 청소와 녹지 관리</small></span><svg width="22" height="22"><use href="#i-radio-off"/></svg></button></div>
+      <div class="amt" data-amt="don"><span>기부할 포인트</span><label><input inputmode="numeric" value="5,000"><i>P</i></label><small class="ptBalTxt"></small>
+        <div class="qchips"><button data-q="1000">1,000P</button><button data-q="5000">5,000P</button><button data-q="all">전액</button></div></div>
+      <button class="consent on" id="receipt"><svg width="22" height="22"><use href="#i-box-on"/></svg><span><b>기부금 영수증을 받을게요</b><small>연말정산 세액공제에 쓸 수 있어요. 발급에 이름과 주민번호가 필요해요.</small></span></button>
+      <button class="btn brand cGo" data-kind="don" style="flex:none"></button>
+    </div></div>
+  </section>
+  <section class="screen safe-top" id="cdone" style="background:#F5F8FF">
+    <div class="nav"><span></span><button class="tap44" data-backto="piggy"><svg width="24" height="24"><use href="#i-close"/></svg></button></div>
+    <div class="scroll"><div class="pts" id="cdoneBody" style="padding-top:32px"></div></div>
+  </section>
+  <section class="screen safe-top" id="phist" style="background:#F5F8FF">
+    <div class="nav cnav"><button class="tap44" data-back><svg width="24" height="24"><use href="#i-back-ios"/></svg></button><b>포인트 내역</b><span style="width:44px"></span></div>
+    <div class="scroll"><div class="pts">
+      <div class="seg3" id="phTabs"><button data-ph="earn">적립</button><button class="on" data-ph="use">사용</button></div>
+      <div class="cards" id="phList"></div>
+    </div></div>
+  </section>
+  <div class="sheet lsheet" id="ruleSheet"><div class="handle"></div><b class="st-t">동네 포인트 적립 기준</b>
+    <div class="rules"><span>적립 대상</span><p>불법 주정차, 쓰레기 무단투기, 불법 광고물 등 과태료 부과 대상 신고</p><p>과태료 부과가 확정된 뒤에 적립돼요</p></div>
+    <div class="rules"><span>적립되지 않는 경우</span><p>같은 사안을 여러 번 신고한 경우</p><p>사실과 다르거나 과장된 신고</p><p>현장 확인 결과 과태료가 부과되지 않은 경우</p><p>본인 소유 차량이나 시설을 신고한 경우</p></div>
+    <p class="warnbar"><svg width="18" height="18"><use href="#i-info"/></svg>허위 신고가 반복되면 포인트 적립이 제한될 수 있어요.</p>
+    <button class="btn brand" data-close style="flex:none">확인했어요</button></div>
 
   <!-- 내 민원 · Live 리포트 -->
   <section class="screen safe-top" id="live">

@@ -585,3 +585,78 @@ svg { display: block; }
 .spv span { display: block; margin-top: 2px; font-size: 12px; line-height: 18px; color: var(--text-muted); }
 .lsheet .sgrid button { height: 76px; }
 .sinfo { border-radius: 12px; background: var(--bg-subtle); padding: 12px 14px; display: flex; gap: 10px; align-items: center; font-size: 12px; line-height: 16px; font-weight: 600; color: var(--text-2); }
+
+/* ── 동네 포인트 ── */
+.pts { padding: 14px 26px 30px; display: flex; flex-direction: column; gap: 16px; }
+.phero { position: relative; height: 174px; border-radius: 20px; background: url(img/pts-hero.png) center / cover, linear-gradient(120deg, #C9E8FF, #A7B5F9 54%, #81AFFD); color: #FFFFFF; padding: 13px 20px; overflow: hidden; }
+.phero > span { display: block; font-size: 13px; line-height: 14px; font-weight: 600; opacity: .7; }
+.phero > b { display: block; margin-top: 5px; font-size: 32px; line-height: 33px; font-weight: 700; }
+.phero > small { display: block; margin-top: 11px; font-size: 14px; line-height: 15px; font-weight: 500; opacity: .8; }
+.phero .ov { position: absolute; left: 15px; right: 25px; bottom: 20px; height: 52px; border-radius: 12px; background: rgba(255,255,255,.12); display: grid; grid-template-columns: repeat(3, 1fr); }
+.phero .ov div { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-right: 1px solid rgba(255,255,255,.3); }
+.phero .ov div:last-child { border: 0; }
+.phero .ov b { font-size: 16px; line-height: 18px; }
+.phero .ov span { font-size: 10px; line-height: 12px; opacity: .7; }
+.rulebar { height: 46px; border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-card); display: flex; align-items: center; gap: 10px; padding: 0 16px; font-size: 12px; text-align: left; }
+.rulebar span { flex: 1; }
+.lhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: -6px; }
+.lhead b { font-size: 16px; line-height: 24px; }
+.lhead button { font-size: 12px; color: var(--primary); }
+.hcard { border-radius: 12px; background: var(--bg-card); border: 1px solid var(--border-card); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; animation: pop .25s ease-out; }
+.hcard .bd { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 12px; line-height: 16px; font-weight: 600; }
+.hcard p { margin-top: 5px; font-size: 14px; line-height: 21px; font-weight: 500; }
+.hcard small { display: block; margin-top: 5px; font-size: 12px; line-height: 18px; color: var(--text-muted); }
+.hcard > em { font-style: normal; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.pnote { margin-top: -6px; text-align: center; font-size: 12px; line-height: 18px; color: var(--text-muted); }
+.pempty { padding: 26px 0; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.pempty b { font-size: 16px; } .pempty p { font-size: 12px; line-height: 18px; color: var(--text-2); }
+.pempty .btn { width: 180px; flex: none; margin-top: 6px; }
+.pcard2 { border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-card); padding: 18px 20px; }
+.pcard2 span { font-size: 12px; line-height: 18px; color: var(--text-muted); }
+.pcard2 b { display: block; margin-top: 4px; font-size: 22px; line-height: 30px; }
+.pcard2.center { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px; }
+.way { border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-card); padding: 16px; display: flex; align-items: center; gap: 14px; text-align: left; }
+.way .wi { width: 48px; height: 48px; border-radius: 12px; background: var(--bg-accent-soft); display: grid; place-items: center; flex: none; }
+.way > span:nth-child(2) { flex: 1; }
+.way b { display: block; font-size: 14px; line-height: 21px; font-weight: 500; }
+.way small { display: block; margin-top: 4px; font-size: 12px; line-height: 18px; color: var(--text-2); }
+.way em { display: block; margin-top: 4px; font-style: normal; font-size: 12px; line-height: 18px; color: var(--text-muted); }
+.pinfo { border-radius: 12px; background: var(--bg-subtle); padding: 12px 14px; display: flex; gap: 10px; font-size: 12px; line-height: 18px; color: var(--text-2); }
+.pinfo svg { flex: none; margin-top: 1px; }
+.pinfo.card { background: var(--bg-card); border: 1px solid var(--border-card); }
+.amt { border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-card); padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.amt > span, .amt small { font-size: 12px; line-height: 18px; color: var(--text-muted); }
+.amt label { display: flex; align-items: center; border-bottom: 2px solid var(--primary); height: 40px; }
+.amt input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: 700 22px/30px "Gothic A1", sans-serif; color: var(--text); }
+.amt label i { font-style: normal; font-size: 22px; font-weight: 700; color: var(--text-muted); }
+.qchips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 4px; }
+.qchips button { height: 34px; border-radius: 999px; background: var(--bg-card); border: 1px solid var(--border-card); font-size: 12px; font-weight: 600; color: var(--text-2); }
+.qchips button.on { background: var(--primary); border-color: var(--primary); color: var(--on-brand); }
+.calc { border-radius: 16px; background: var(--bg-accent-soft); padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.calc div { display: flex; justify-content: space-between; align-items: center; font-size: 14px; line-height: 21px; font-weight: 500; color: var(--text-2); }
+.calc b { font-size: 16px; color: var(--primary); }
+.calc em { font-style: normal; color: var(--text); }
+.amt.err label { border-color: #D92D20; }
+.amt.err small { color: #D92D20; }
+.bills { display: flex; flex-direction: column; gap: 10px; }
+.bills button { border-radius: 16px; background: var(--bg-card); border: 1px solid var(--border-card); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; text-align: left; }
+.bills button.on { background: var(--bg-accent-soft); border: 1.5px solid var(--primary); }
+.bills b { display: block; font-size: 14px; line-height: 21px; font-weight: 500; }
+.bills small { display: block; margin-top: 4px; font-size: 12px; line-height: 18px; color: var(--text-muted); }
+.bills em { font-style: normal; font-size: 16px; font-weight: 700; }
+.bills svg { color: #A2A1B4; } .bills .on svg { color: var(--primary); }
+.okic { align-self: center; width: 76px; height: 76px; border-radius: 50%; background: var(--bg-accent); display: grid; place-items: center; color: var(--primary); animation: pop .4s ease-out; }
+.seg3 { height: 47px; padding: 3px; border-radius: 12px; background: #E8EDF9; display: grid; grid-template-columns: 1fr 1fr; }
+.seg3 button { border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--text-muted); }
+.seg3 button.on { background: var(--bg-card); color: var(--text); }
+.rules { display: flex; flex-direction: column; gap: 8px; }
+.rules span { font-size: 12px; line-height: 18px; color: var(--text-muted); }
+.rules p { position: relative; padding-left: 16px; font-size: 14px; line-height: 21px; font-weight: 500; color: #17233C; }
+.rules p::before { content: ""; position: absolute; left: 1px; top: 8px; width: 5px; height: 5px; border-radius: 3px; background: var(--primary); }
+.warnbar { border-radius: 12px; background: #FDECEA; padding: 12px 14px; display: flex; gap: 10px; align-items: center; font-size: 12px; line-height: 18px; color: #D92D20; }
+.steps3 { display: flex; flex-direction: column; gap: 12px; }
+.steps3 div { display: flex; align-items: center; gap: 10px; font-size: 14px; line-height: 21px; font-weight: 500; color: #17233C; }
+.steps3 i { width: 8px; height: 8px; border-radius: 4px; background: var(--primary); }
+.steps3 span { flex: 1; }
+.steps3 small { font-size: 12px; color: var(--text-muted); }
+.linkbtn { height: 54px; border-radius: 14px; background: var(--bg-card); border: 1px solid #C9D5F2; font-size: 15px; font-weight: 600; color: var(--primary); }

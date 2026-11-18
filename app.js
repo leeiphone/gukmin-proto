@@ -291,7 +291,7 @@ const notis = [
   { bd: ['처리 상태', '#E5EAFF', '#0046FF'], t: '가로등 고장 신고가 처리 중이에요', m: '노원구 도로관리과 배정 · 방금', unread: true, to: () => openDetail('lamp-off') },
   { bd: ['추가 자료', '#FFF1DC', '#B26A00'], t: '사진을 한 장 더 보내주세요', m: '불법 주정차 신고 · 2시간 전', unread: true, to: () => { cur = mine.find(x => x.id === 'parking'); if (!cur) return; resetForm($('#extra')); fillTarget($('#extra')); go('extra'); } },
   { bd: ['처리 완료', '#E5EAFF', '#0046FF'], t: '포트홀 보수가 완료됐어요', m: '처리 결과를 확인해주세요 · 9월 8일', to: () => openDetail('pothole') },
-  { bd: ['포인트', '#F5F8FF', '#526491'], t: '동네 포인트 5,000P가 적립됐어요', m: '불법 주정차 신고 · 9월 8일', to: () => toast('포상 저금통은 다음 업데이트에서 열려요') },
+  { bd: ['포인트', '#F5F8FF', '#526491'], t: '동네 포인트 5,000P가 적립됐어요', m: '불법 주정차 신고 · 9월 8일', to: () => go('piggy') },
   { bd: ['동네 소식', '#F5F8FF', '#526491'], t: '공릉2동 상수도 공사 안내', m: '9월 15일부터 단수 · 9월 9일', to: () => go('notice') },
 ];
 function renderNotis() {
@@ -449,7 +449,7 @@ const SVCS = [
   ['내 민원', 3, [['내 민원 Live', 'i-time', () => tab('live')], ['처리 결과 평가', 'i-feedback', () => { cur = mine.find(m => m.id === 'pothole') || mine[0]; resetForm($('#rate')); go('rate'); }],
     ['추가 자료 보내기', 'i-attach', () => { cur = mine.find(m => m.st !== '완료') || mine[0]; resetForm($('#extra')); fillTarget($('#extra')); go('extra'); }]]],
   ['동네', 3, [['우리동네 해결 소식', 'i-map', () => tab('news')], ['동네 공지', 'i-notice', () => go('notice')], ['이슈 지도', 'i-location', () => go('mapfull')]]],
-  ['혜택', 3, [['포상 저금통', 'i-card', () => toast('포상 저금통은 다음 업데이트에서 열려요')], ['지역상생페이 전환', 'i-cart', () => toast('포인트 전환은 다음 업데이트에서 열려요')], ['기부하기', 'i-heart', () => toast('기부하기는 다음 업데이트에서 열려요')]]],
+  ['혜택', 3, [['포상 저금통', 'i-card', () => go('piggy')], ['지역상생페이 전환', 'i-cart', () => go('cpay')], ['기부하기', 'i-heart', () => go('cdon')]]],
 ];
 $('#svcs').innerHTML = SVCS.map(([g, n, items], gi) => `<div class="sgroup"><span>${g}</span><div class="sgrid" style="grid-template-columns:repeat(${n},1fr)">${items.map((it, i) => `<button data-sv="${gi}.${i}"><svg width="24" height="24"><use href="#${it[1]}"/></svg>${it[0]}</button>`).join('')}</div></div>`).join('');
 $('#svcs').addEventListener('click', e => { const b = e.target.closest('[data-sv]'); if (!b) return; const [g, i] = b.dataset.sv.split('.'); SVCS[g][2][i][2](); });
@@ -550,3 +550,103 @@ const _openLayer = openLayer;
 openLayer = el => { if (el.id === 'regionSheet') { $('#rq').value = ''; drawRegions(); } if (el.id === 'sortSheet') { sortDraft = { ...sortSel }; drawSort(); } _openLayer(el); };
 const _enter3 = onEnter;
 onEnter = id => { _enter3(id); if (id === 'news') renderNews(); };
+
+/* ───────── 동네 포인트 ───────── */
+const won = n => n.toLocaleString('ko-KR');
+let pts = 12500;
+const EARN = [
+  { bd: ['지급 완료', '#E5EAFF', '#0046FF'], t: '불법 주정차 신고', m: '과태료 부과 확정 · 9월 8일', v: '+5,000P', c: '#0046FF', d: { amt: '+5,000P', date: '2026년 9월 8일 지급', no: 'N-260903-041', place: '공릉2동 화랑로 51길', org: '노원구 교통지도과', s: [['신고 접수', '9월 3일'], ['현장 확인·과태료 부과 확정', '9월 6일'], ['동네 포인트 적립', '9월 8일']], mine: 'parking' } },
+  { bd: ['지급 완료', '#E5EAFF', '#0046FF'], t: '쓰레기 무단투기 신고', m: '과태료 부과 확정 · 9월 5일', v: '+3,000P', c: '#0046FF', d: { amt: '+3,000P', date: '2026년 9월 5일 지급', no: 'N-260901-017', place: '공릉2동 주택가 골목', org: '노원구 청소행정과', s: [['신고 접수', '9월 1일'], ['현장 확인·과태료 부과 확정', '9월 4일'], ['동네 포인트 적립', '9월 5일']] } },
+  { bd: ['지급 예정', '#FFF1DC', '#B26A00'], t: '도로 파손 신고', m: '처리 완료 후 지급 · 심사 중', v: '+4,500P', c: '#B26A00', d: { amt: '+4,500P', date: '처리 완료 후 지급 예정', no: 'N-260905-118', place: '공릉동 화랑로', org: '노원구 도로관리과', s: [['신고 접수', '9월 5일'], ['처리 완료', '9월 8일'], ['포상 심사 중', '진행 중']], mine: 'pothole', pending: 1 } },
+  { bd: ['대상 아님', '#F5F8FF', '#526491'], t: '가로등 고장 신고', m: '과태료 부과 건이 아니에요', v: '—', c: '#646B7A' },
+];
+const USED = [
+  { t: '노원구 지역상생페이 전환', m: '2026.09.11 · 바로 사용 가능', v: '-10,000P' },
+  { t: '노원 이웃돌봄 기금 기부', m: '2026.08.20 · 영수증 발급됨', v: '-5,000P' },
+  { t: '자동차세 1기분 충당', m: '2026.06.28 · 위택스 반영', v: '-8,000P' },
+];
+function renderPiggy() {
+  const empty = pts === 0 && !EARN.length;
+  $('#ptsBody').innerHTML = `
+    <div class="phero"><span>모은 동네 포인트</span><b>${won(pts)}P</b><small>누적 포인트</small>
+      <div class="ov"><div><b>8000P</b><span>이번 달</span></div><div><b>3회</b><span>포상 횟수</span></div><div><b>4,500P</b><span>지급 예정</span></div></div></div>
+    <button class="rulebar" data-layer="ruleSheet"><svg width="18" height="18"><use href="#i-info"/></svg><span>동네 포인트는 과태료가 부과된 신고에만 적립돼요</span><svg width="16" height="16"><use href="#i-chev"/></svg></button>
+    <div class="lhead"><b>적립 내역</b><button data-go="phist" data-tabto="earn">전체보기</button></div>
+    ${empty ? `<div class="pempty"><b>아직 모은 동네 포인트가 없어요</b><p>불법 주정차나 무단투기를 신고하면<br>과태료 부과가 확정된 뒤 포인트가 쌓여요.</p><button class="btn brand" data-go="voice">신고하러 가기</button></div>`
+      : EARN.map((e, i) => `<button class="hcard card-press" data-earn="${i}"><span><span class="bd" style="background:${e.bd[1]};color:${e.bd[2]}">${e.bd[0]}</span><p>${e.t}</p><small>${e.m}</small></span><em style="color:${e.c}">${e.v}</em></button>`).join('')}
+    <button class="btn brand" data-go="convert" style="flex:none">전환하기</button>
+    <p class="pnote" style="margin-top:0">지역상생페이·지방세 납부·기부로 전환할 수 있어요. 현금 출금은 되지 않아요.</p>`;
+}
+$('#ptsBody').addEventListener('click', e => { const b = e.target.closest('[data-earn]'); if (!b) return; const x = EARN[b.dataset.earn];
+  if (!x.d) return toast('과태료 부과 건이 아니라 포인트 대상이 아니에요'); openEarn(x); });
+function openEarn(x) {
+  const d = x.d;
+  $('#earnBody').innerHTML = `
+    <div class="pcard2 center"><span class="bd" style="display:inline-block;padding:4px 8px;border-radius:6px;font-size:12px;font-weight:600;background:${x.bd[1]};color:${x.bd[2]}">${x.bd[0]}</span><b style="margin:0">${d.amt}</b><span>${d.date}</span></div>
+    <div class="ncard2"><b style="font-size:14px;font-weight:500">대상 민원</b><div class="kv"><span>민원</span><b>${x.t}</b></div><div class="kv"><span>접수번호</span><b>${d.no}</b></div><div class="kv"><span>신고 위치</span><b>${d.place}</b></div><div class="kv"><span>담당 기관</span><b>${d.org}</b></div></div>
+    <div class="ncard2"><b style="font-size:14px;font-weight:500">지급 경위</b><div class="steps3">${d.s.map(([a, b]) => `<div><i></i><span>${a}</span><small>${b}</small></div>`).join('')}</div></div>
+    ${d.mine ? `<button class="linkbtn" data-mine="${d.mine}">민원 상세 보기</button>` : ''}`;
+  go('earn');
+}
+$('#earnBody').addEventListener('click', e => { const b = e.target.closest('[data-mine]'); if (b) openDetail(b.dataset.mine); });
+
+// 전환 금액 입력 공통
+const amtVal = box => +box.querySelector('input').value.replace(/[^0-9]/g, '') || 0;
+function syncAmt(box) {
+  const kind = box.dataset.amt, v = amtVal(box), ok = v > 0 && v <= pts;
+  box.querySelector('input').value = v ? won(v) : '';
+  box.classList.toggle('err', v > pts);
+  box.querySelector('.ptBalTxt').textContent = v > pts ? `보유 포인트(${won(pts)}P)보다 많아요` : `보유 ${won(pts)}P`;
+  box.querySelectorAll('[data-q]').forEach(q => q.classList.toggle('on', q.dataset.q === 'all' ? v === pts : +q.dataset.q === v));
+  const scr = box.closest('.screen');
+  if (kind === 'pay') { scr.querySelector('.cWon').textContent = won(v) + '원'; scr.querySelector('.cLeft').textContent = won(Math.max(0, pts - v)) + 'P'; }
+  const btn = scr.querySelector('.cGo'); btn.textContent = `${won(v)}P ${kind === 'pay' ? '전환하기' : '기부하기'}`; btn.disabled = !ok; btn.style.opacity = ok ? 1 : .4;
+}
+document.querySelectorAll('[data-amt]').forEach(box => {
+  box.querySelector('input').addEventListener('input', () => syncAmt(box));
+  box.addEventListener('click', e => { const q = e.target.closest('[data-q]'); if (!q) return; box.querySelector('input').value = q.dataset.q === 'all' ? pts : q.dataset.q; syncAmt(box); });
+});
+// 지방세
+function syncTax() { const b = $('#bills .on'), due = +b.dataset.due, use = Math.min(pts, due);
+  $('.tUse').textContent = won(use) + 'P'; $('.tRemain').textContent = won(due - use) + '원'; $('.tLeft').textContent = won(pts - use) + 'P';
+  const g = $('#ctax .cGo'); g.textContent = `${won(use)}P 충당하기`; g.disabled = !use; g.style.opacity = use ? 1 : .4; }
+$('#bills').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#bills').children].forEach(x => x.classList.toggle('on', x === b)); syncTax(); });
+$('#orgs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; [...$('#orgs').children].forEach(x => { x.classList.toggle('on', x === b); x.querySelector('use').setAttribute('href', x === b ? '#i-radio-on' : '#i-radio-off'); }); });
+$('#receipt').onclick = () => { const c = $('#receipt'); c.classList.toggle('on'); c.querySelector('use').setAttribute('href', c.classList.contains('on') ? '#i-box-on' : '#i-box-off'); };
+// 전환 실행 → 09 / 09b / 09c
+document.querySelectorAll('.cGo').forEach(b => b.onclick = () => {
+  const kind = b.dataset.kind, d = new Date(), p = n => String(n).padStart(2, '0');
+  const when = `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일 ${p(d.getHours())}:${p(d.getMinutes())}`;
+  let v, title, sub, rows, note, link;
+  if (kind === 'pay') { v = amtVal($('#cpay [data-amt]')); title = '지역상생페이로 전환했어요'; sub = '동네 가맹점에서 바로 사용할 수 있어요.'; rows = [['전환 금액', won(v) + '원', 1], ['전환처', '노원구 지역상생페이']]; note = '사용은 지역상생페이 앱에서 할 수 있어요. 잔액은 그쪽에서 확인해주세요.'; link = '전환 내역 보기'; USED.unshift({ t: '노원구 지역상생페이 전환', m: '방금 · 바로 사용 가능', v: `-${won(v)}P` }); }
+  if (kind === 'tax') { const bill = $('#bills .on'); v = Math.min(pts, +bill.dataset.due); title = '지방세 납부에 사용했어요'; sub = '다음 고지서에 자동으로 반영돼요.'; rows = [['전환 금액', won(v) + '원', 1], ['충당 대상', bill.dataset.bill]]; note = '납부 내역은 위택스에서도 확인할 수 있어요.'; link = '납부 내역 보기'; USED.unshift({ t: bill.dataset.bill + ' 충당', m: '방금 · 위택스 반영 예정', v: `-${won(v)}P` }); }
+  if (kind === 'don') { v = amtVal($('#cdon [data-amt]')); const org = $('#orgs .on').dataset.org; title = '기부했어요'; sub = `${org}에 전달됐어요.`; rows = [['기부 금액', won(v) + '원', 1], ['기부처', org]]; note = $('#receipt').classList.contains('on') ? '기부금 영수증은 다음 달 초에 발급돼요.' : '기부금 영수증은 받지 않기로 했어요.'; link = '기부 내역 보기'; USED.unshift({ t: org + ' 기부', m: '방금 · ' + (note.includes('발급돼요') ? '영수증 발급 예정' : '영수증 없음'), v: `-${won(v)}P` }); }
+  pts -= v;
+  rows.push(['남은 포인트', won(pts) + 'P'], ['전환 일시', when]);
+  $('#cdoneBody').innerHTML = `<span class="okic"><svg width="38" height="38"><use href="#i-check"/></svg></span><p class="h-title center" style="margin-top:0">${title}</p><p class="center" style="margin-top:-6px;font-size:12px;line-height:18px;color:var(--text-2)">${sub}</p>
+    <div class="ncard2">${rows.map(([a, b, hl]) => `<div class="kv2" style="align-items:center"><span>${a}</span>${hl ? `<b style="font-size:16px;font-weight:700;color:var(--primary)">${b}</b>` : `<b style="font-size:14px;font-weight:500;color:var(--text)">${b}</b>`}</div>`).join('')}</div>
+    <p class="pinfo"><svg width="18" height="18"><use href="#i-info"/></svg>${note}</p>
+    <div class="actions"><button class="btn neutral" data-backto="piggy" style="width:130px">저금통으로</button><button class="btn brand" data-backto="piggy" data-then="phist">${link}</button></div>`;
+  replace('cdone');
+});
+// 화면 기록을 되감아 특정 화면으로 (저금통으로)
+document.addEventListener('click', e => { const b = e.target.closest('[data-backto]'); if (!b) return; const to = b.dataset.backto, then = b.dataset.then;
+  const from = stack[stack.length - 1]; while (stack.length > 1 && stack[stack.length - 1] !== to) stack.pop();
+  if (stack[stack.length - 1] !== to) stack.push(to);
+  show(from, to, true); onLeave(from); if (then) setTimeout(() => { phTab = 'use'; go(then); }, 340); });
+// 10 포인트 내역
+let phTab = 'use';
+function renderHist() {
+  [...$('#phTabs').children].forEach(b => b.classList.toggle('on', b.dataset.ph === phTab));
+  $('#phList').innerHTML = (phTab === 'use' ? USED.map(u => `<div class="hcard"><span><span class="bd" style="background:#F5F8FF;color:#526491">사용</span><p>${u.t}</p><small>${u.m}</small></span><em>${u.v}</em></div>`)
+    : EARN.map(e => `<div class="hcard"><span><span class="bd" style="background:${e.bd[1]};color:${e.bd[2]}">${e.bd[0]}</span><p>${e.t}</p><small>${e.m}</small></span><em style="color:${e.c}">${e.v}</em></div>`)).join('');
+}
+$('#phTabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { phTab = b.dataset.ph; renderHist(); } });
+document.addEventListener('click', e => { const b = e.target.closest('[data-tabto]'); if (b) phTab = b.dataset.tabto; }, true);
+const _enter4 = onEnter;
+onEnter = id => { _enter4(id);
+  if (id === 'piggy') renderPiggy();
+  if (id === 'convert') document.querySelectorAll('.ptBal').forEach(x => x.textContent = won(pts) + 'P');
+  if (id === 'cpay' || id === 'cdon') syncAmt(document.querySelector(`#${id} [data-amt]`));
+  if (id === 'ctax') syncTax();
+  if (id === 'phist') renderHist(); };
